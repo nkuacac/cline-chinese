@@ -1,6 +1,7 @@
 import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 import { memo } from "react"
 import { getAsVar, VSC_DESCRIPTION_FOREGROUND, VSC_INACTIVE_SELECTION_BACKGROUND } from "../../utils/vscStyles"
+import { vscode } from "../../utils/vscode"
 
 interface AnnouncementProps {
 	version: string
@@ -26,99 +27,33 @@ const Announcement = ({ version, hideAnnouncement }: AnnouncementProps) => {
 				<span className="codicon codicon-close"></span>
 			</VSCodeButton>
 			<h3 style={{ margin: "0 0 8px" }}>
-				🎉{"  "}New in v{minorVersion}
+				🎉{"  "}v{minorVersion} 新功能
 			</h3>
 			<ul style={{ margin: "0 0 8px", paddingLeft: "12px" }}>
 				<li>
-					<b>Plan/Act mode toggle:</b> Plan mode turns Cline into an architect that gathers information, asks clarifying
-					questions, and designs a solution. Switch back to Act mode to let him execute the plan!{" "}
-					<VSCodeLink href="https://x.com/sdrzn/status/1881761978986934582" style={{ display: "inline" }}>
-						See a demo here.
+					<b>推出 MCP 市场：</b>直接在扩展中发现和安装最好的 MCP 服务器，并且会定期添加新的服务器！点击{" "}
+					<span className="codicon codicon-extensions" style={{ marginRight: "4px", fontSize: 10 }}></span>
+					<VSCodeLink
+						onClick={() => {
+							vscode.postMessage({ type: "showMcpView" })
+						}}>
+						MCP Servers 标签页
 					</VSCodeLink>
+					开始使用！
 				</li>
 				<li>
-					<b>Quick API/model switching</b> with a new popup menu under the chat field
+					<b>计划模式中的 Mermaid 图表！</b>现在 Cline
+					可以使用流程图、序列图、实体关系图等方式来可视化他的计划。当他使用 mermaid
+					解释他的方法时，你会在聊天中看到一个可点击展开的图表。
 				</li>
 				<li>
-					<b>VS Code LM API</b> lets you use models from other extensions like GitHub Copilot
+					使用 <code>@terminal</code> 来引用终端内容，使用 <code>@git</code> 来引用工作更改和提交！
 				</li>
-				<li>
-					<b>MCP server improvements:</b> On/off toggle to disable servers when not in use, and Auto-approve option for
-					individual tools
-				</li>
-				<li>
-					In case you missed it, Cline now supports Checkpoints!{" "}
-					<VSCodeLink href="https://x.com/sdrzn/status/1876378124126236949" style={{ display: "inline" }}>
-						See it in action here.
-					</VSCodeLink>
-				</li>
+				<li>在编辑文件和运行命令后使用更多可视化的检查点指示器，并在每个任务开始时自动创建检查点。</li>
 			</ul>
-			{/*<ul style={{ margin: "0 0 8px", paddingLeft: "12px" }}>
-				 <li>
-					OpenRouter now supports prompt caching! They also have much higher rate limits than other providers,
-					so I recommend trying them out.
-					<br />
-					{!apiConfiguration?.openRouterApiKey && (
-						<VSCodeButtonLink
-							href={getOpenRouterAuthUrl(vscodeUriScheme)}
-							style={{
-								transform: "scale(0.85)",
-								transformOrigin: "left center",
-								margin: "4px -30px 2px 0",
-							}}>
-							Get OpenRouter API Key
-						</VSCodeButtonLink>
-					)}
-					{apiConfiguration?.openRouterApiKey && apiConfiguration?.apiProvider !== "openrouter" && (
-						<VSCodeButton
-							onClick={() => {
-								vscode.postMessage({
-									type: "apiConfiguration",
-									apiConfiguration: { ...apiConfiguration, apiProvider: "openrouter" },
-								})
-							}}
-							style={{
-								transform: "scale(0.85)",
-								transformOrigin: "left center",
-								margin: "4px -30px 2px 0",
-							}}>
-							Switch to OpenRouter
-						</VSCodeButton>
-					)}
-				</li>
-				<li>
-					<b>Edit Cline's changes before accepting!</b> When he creates or edits a file, you can modify his
-					changes directly in the right side of the diff view (+ hover over the 'Revert Block' arrow button in
-					the center to undo "<code>{"// rest of code here"}</code>" shenanigans)
-				</li>
-				<li>
-					New <code>search_files</code> tool that lets Cline perform regex searches in your project, letting
-					him refactor code, address TODOs and FIXMEs, remove dead code, and more!
-				</li>
-				<li>
-					When Cline runs commands, you can now type directly in the terminal (+ support for Python
-					environments)
-				</li>
-			</ul>*/}
-			<div
-				style={{
-					height: "1px",
-					background: getAsVar(VSC_DESCRIPTION_FOREGROUND),
-					opacity: 0.1,
-					margin: "8px 0",
-				}}
-			/>
-			<p style={{ margin: "0" }}>
-				Join our{" "}
-				<VSCodeLink style={{ display: "inline" }} href="https://discord.gg/cline">
-					discord
-				</VSCodeLink>{" "}
-				or{" "}
-				<VSCodeLink style={{ display: "inline" }} href="https://www.reddit.com/r/cline/">
-					r/cline
-				</VSCodeLink>
-				for more updates!
-			</p>
+			<VSCodeLink href="https://x.com/sdrzn/status/1892262424881090721" style={{ display: "inline" }}>
+				在这里查看更新演示！
+			</VSCodeLink>
 		</div>
 	)
 }

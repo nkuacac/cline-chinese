@@ -21,6 +21,7 @@ export interface ApiHandlerOptions {
 	apiKey?: string // anthropic
 	liteLlmBaseUrl?: string
 	liteLlmModelId?: string
+	liteLlmApiKey?: string
 	anthropicBaseUrl?: string
 	openRouterApiKey?: string
 	openRouterModelId?: string
@@ -37,6 +38,7 @@ export interface ApiHandlerOptions {
 	openAiBaseUrl?: string
 	openAiApiKey?: string
 	openAiModelId?: string
+	openAiModelInfo?: ModelInfo
 	ollamaModelId?: string
 	ollamaBaseUrl?: string
 	lmStudioModelId?: string
@@ -78,8 +80,19 @@ export interface ModelInfo {
 // Anthropic
 // https://docs.anthropic.com/en/docs/about-claude/models // prices updated 2025-01-02
 export type AnthropicModelId = keyof typeof anthropicModels
-export const anthropicDefaultModelId: AnthropicModelId = "claude-3-5-sonnet-20241022"
+export const anthropicDefaultModelId: AnthropicModelId = "claude-3-7-sonnet-20250219"
 export const anthropicModels = {
+	"claude-3-7-sonnet-20250219": {
+		maxTokens: 8192,
+		contextWindow: 200_000,
+		supportsImages: true,
+		supportsComputerUse: true,
+		supportsPromptCache: true,
+		inputPrice: 3.0,
+		outputPrice: 15.0,
+		cacheWritesPrice: 3.75,
+		cacheReadsPrice: 0.3,
+	},
 	"claude-3-5-sonnet-20241022": {
 		maxTokens: 8192,
 		contextWindow: 200_000,
@@ -126,8 +139,19 @@ export const anthropicModels = {
 // AWS Bedrock
 // https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html
 export type BedrockModelId = keyof typeof bedrockModels
-export const bedrockDefaultModelId: BedrockModelId = "anthropic.claude-3-5-sonnet-20241022-v2:0"
+export const bedrockDefaultModelId: BedrockModelId = "anthropic.claude-3-7-sonnet-20250219-v1:0"
 export const bedrockModels = {
+	"anthropic.claude-3-7-sonnet-20250219-v1:0": {
+		maxTokens: 8192,
+		contextWindow: 200_000,
+		supportsImages: true,
+		supportsComputerUse: true,
+		supportsPromptCache: true,
+		inputPrice: 3.0,
+		outputPrice: 15.0,
+		cacheWritesPrice: 3.75,
+		cacheReadsPrice: 0.3,
+	},
 	"anthropic.claude-3-5-sonnet-20241022-v2:0": {
 		maxTokens: 8192,
 		contextWindow: 200_000,
@@ -181,7 +205,7 @@ export const bedrockModels = {
 
 // OpenRouter
 // https://openrouter.ai/models?order=newest&supported_parameters=tools
-export const openRouterDefaultModelId = "anthropic/claude-3.5-sonnet" // will always exist in openRouterModels
+export const openRouterDefaultModelId = "anthropic/claude-3.7-sonnet" // will always exist in openRouterModels
 export const openRouterDefaultModelInfo: ModelInfo = {
 	maxTokens: 8192,
 	contextWindow: 200_000,
@@ -193,54 +217,73 @@ export const openRouterDefaultModelInfo: ModelInfo = {
 	cacheWritesPrice: 3.75,
 	cacheReadsPrice: 0.3,
 	description:
-		"The new Claude 3.5 Sonnet delivers better-than-Opus capabilities, faster-than-Sonnet speeds, at the same Sonnet prices. Sonnet is particularly good at:\n\n- Coding: New Sonnet scores ~49% on SWE-Bench Verified, higher than the last best score, and without any fancy prompt scaffolding\n- Data science: Augments human data science expertise; navigates unstructured data while using multiple tools for insights\n- Visual processing: excelling at interpreting charts, graphs, and images, accurately transcribing text to derive insights beyond just the text alone\n- Agentic tasks: exceptional tool use, making it great at agentic tasks (i.e. complex, multi-step problem solving tasks that require engaging with other systems)\n\n#multimodal",
+		"Claude 3.7 Sonnet is an advanced large language model with improved reasoning, coding, and problem-solving capabilities. It introduces a hybrid reasoning approach, allowing users to choose between rapid responses and extended, step-by-step processing for complex tasks. The model demonstrates notable improvements in coding, particularly in front-end development and full-stack updates, and excels in agentic workflows, where it can autonomously navigate multi-step processes. \n\nClaude 3.7 Sonnet maintains performance parity with its predecessor in standard mode while offering an extended reasoning mode for enhanced accuracy in math, coding, and instruction-following tasks.\n\nRead more at the [blog post here](https://www.anthropic.com/news/claude-3-7-sonnet)",
 }
-
 // Vertex AI
 // https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/use-claude
+// https://cloud.google.com/vertex-ai/generative-ai/pricing#partner-models
 export type VertexModelId = keyof typeof vertexModels
-export const vertexDefaultModelId: VertexModelId = "claude-3-5-sonnet-v2@20241022"
+export const vertexDefaultModelId: VertexModelId = "claude-3-7-sonnet@20250219"
 export const vertexModels = {
+	"claude-3-7-sonnet@20250219": {
+		maxTokens: 8192,
+		contextWindow: 200_000,
+		supportsImages: true,
+		supportsComputerUse: true,
+		supportsPromptCache: true,
+		inputPrice: 3.0,
+		outputPrice: 15.0,
+	},
 	"claude-3-5-sonnet-v2@20241022": {
 		maxTokens: 8192,
 		contextWindow: 200_000,
 		supportsImages: true,
 		supportsComputerUse: true,
-		supportsPromptCache: false,
+		supportsPromptCache: true,
 		inputPrice: 3.0,
 		outputPrice: 15.0,
+		cacheWritesPrice: 3.75,
+		cacheReadsPrice: 0.3,
 	},
 	"claude-3-5-sonnet@20240620": {
 		maxTokens: 8192,
 		contextWindow: 200_000,
 		supportsImages: true,
-		supportsPromptCache: false,
+		supportsPromptCache: true,
 		inputPrice: 3.0,
 		outputPrice: 15.0,
+		cacheWritesPrice: 3.75,
+		cacheReadsPrice: 0.3,
 	},
 	"claude-3-5-haiku@20241022": {
 		maxTokens: 8192,
 		contextWindow: 200_000,
 		supportsImages: false,
-		supportsPromptCache: false,
+		supportsPromptCache: true,
 		inputPrice: 1.0,
 		outputPrice: 5.0,
+		cacheWritesPrice: 1.25,
+		cacheReadsPrice: 0.1,
 	},
 	"claude-3-opus@20240229": {
 		maxTokens: 4096,
 		contextWindow: 200_000,
 		supportsImages: true,
-		supportsPromptCache: false,
+		supportsPromptCache: true,
 		inputPrice: 15.0,
 		outputPrice: 75.0,
+		cacheWritesPrice: 18.75,
+		cacheReadsPrice: 1.5,
 	},
 	"claude-3-haiku@20240307": {
 		maxTokens: 4096,
 		contextWindow: 200_000,
 		supportsImages: true,
-		supportsPromptCache: false,
+		supportsPromptCache: true,
 		inputPrice: 0.25,
 		outputPrice: 1.25,
+		cacheWritesPrice: 0.3,
+		cacheReadsPrice: 0.03,
 	},
 } as const satisfies Record<string, ModelInfo>
 
@@ -361,6 +404,14 @@ export const geminiModels = {
 export type OpenAiNativeModelId = keyof typeof openAiNativeModels
 export const openAiNativeDefaultModelId: OpenAiNativeModelId = "gpt-4o"
 export const openAiNativeModels = {
+	"gpt-4.5-preview": {
+		maxTokens: 16_384,
+		contextWindow: 128_000,
+		supportsImages: true,
+		supportsPromptCache: false,
+		inputPrice: 75,
+		outputPrice: 150,
+	},
 	"o3-mini": {
 		maxTokens: 100_000,
 		contextWindow: 200_000,
@@ -428,9 +479,9 @@ export const deepSeekModels = {
 		supportsImages: false,
 		supportsPromptCache: true, // supports context caching, but not in the way anthropic does it (deepseek reports input tokens and reads/writes in the same usage report) FIXME: we need to show users cache stats how deepseek does it
 		inputPrice: 0, // technically there is no input price, it's all either a cache hit or miss (ApiOptions will not show this)
-		outputPrice: 0.28,
-		cacheWritesPrice: 0.14,
-		cacheReadsPrice: 0.014,
+		outputPrice: 1.1,
+		cacheWritesPrice: 0.27,
+		cacheReadsPrice: 0.07,
 	},
 	"deepseek-reasoner": {
 		maxTokens: 8_000,
@@ -449,85 +500,145 @@ export const deepSeekModels = {
 export type QwenModelId = keyof typeof qwenModels
 export const qwenDefaultModelId: QwenModelId = "qwen-coder-plus-latest"
 export const qwenModels = {
+	"qwen2.5-coder-32b-instruct": {
+		maxTokens: 8_192,
+		contextWindow: 131_072,
+		supportsImages: false,
+		supportsPromptCache: false,
+		inputPrice: 0.002,
+		outputPrice: 0.006,
+		cacheWritesPrice: 0.002,
+		cacheReadsPrice: 0.006,
+	},
+	"qwen2.5-coder-14b-instruct": {
+		maxTokens: 8_192,
+		contextWindow: 131_072,
+		supportsImages: false,
+		supportsPromptCache: false,
+		inputPrice: 0.002,
+		outputPrice: 0.006,
+		cacheWritesPrice: 0.002,
+		cacheReadsPrice: 0.006,
+	},
+	"qwen2.5-coder-7b-instruct": {
+		maxTokens: 8_192,
+		contextWindow: 131_072,
+		supportsImages: false,
+		supportsPromptCache: false,
+		inputPrice: 0.001,
+		outputPrice: 0.002,
+		cacheWritesPrice: 0.001,
+		cacheReadsPrice: 0.002,
+	},
+	"qwen2.5-coder-3b-instruct": {
+		maxTokens: 8_192,
+		contextWindow: 32_768,
+		supportsImages: false,
+		supportsPromptCache: false,
+		inputPrice: 0.0,
+		outputPrice: 0.0,
+		cacheWritesPrice: 0.0,
+		cacheReadsPrice: 0.0,
+	},
+	"qwen2.5-coder-1.5b-instruct": {
+		maxTokens: 8_192,
+		contextWindow: 32_768,
+		supportsImages: false,
+		supportsPromptCache: false,
+		inputPrice: 0.0,
+		outputPrice: 0.0,
+		cacheWritesPrice: 0.0,
+		cacheReadsPrice: 0.0,
+	},
+	"qwen2.5-coder-0.5b-instruct": {
+		maxTokens: 8_192,
+		contextWindow: 32_768,
+		supportsImages: false,
+		supportsPromptCache: false,
+		inputPrice: 0.0,
+		outputPrice: 0.0,
+		cacheWritesPrice: 0.0,
+		cacheReadsPrice: 0.0,
+	},
 	"qwen-coder-plus-latest": {
 		maxTokens: 129_024,
 		contextWindow: 131_072,
 		supportsImages: false,
 		supportsPromptCache: false,
-		inputPrice: 0.0035,
-		outputPrice: 0.007,
-		cacheWritesPrice: 0.0035,
-		cacheReadsPrice: 0.007,
+		inputPrice: 3.5,
+		outputPrice: 7,
+		cacheWritesPrice: 3.5,
+		cacheReadsPrice: 7,
 	},
 	"qwen-plus-latest": {
 		maxTokens: 129_024,
 		contextWindow: 131_072,
 		supportsImages: false,
 		supportsPromptCache: false,
-		inputPrice: 0.0008,
-		outputPrice: 0.002,
-		cacheWritesPrice: 0.0004,
-		cacheReadsPrice: 0.001,
+		inputPrice: 0.8,
+		outputPrice: 2,
+		cacheWritesPrice: 0.8,
+		cacheReadsPrice: 0.2,
 	},
 	"qwen-turbo-latest": {
 		maxTokens: 1_000_000,
 		contextWindow: 1_000_000,
 		supportsImages: false,
 		supportsPromptCache: false,
-		inputPrice: 0.0003,
-		outputPrice: 0.0006,
-		cacheWritesPrice: 0.00015,
-		cacheReadsPrice: 0.0003,
+		inputPrice: 0.8,
+		outputPrice: 2,
+		cacheWritesPrice: 0.8,
+		cacheReadsPrice: 2,
 	},
 	"qwen-max-latest": {
 		maxTokens: 30_720,
 		contextWindow: 32_768,
 		supportsImages: false,
 		supportsPromptCache: false,
-		inputPrice: 0.0112,
-		outputPrice: 0.0448,
-		cacheWritesPrice: 0.0056,
-		cacheReadsPrice: 0.0224,
+		inputPrice: 2.4,
+		outputPrice: 9.6,
+		cacheWritesPrice: 2.4,
+		cacheReadsPrice: 9.6,
 	},
 	"qwen-coder-plus": {
 		maxTokens: 129_024,
 		contextWindow: 131_072,
 		supportsImages: false,
 		supportsPromptCache: false,
-		inputPrice: 0.0035,
-		outputPrice: 0.007,
-		cacheWritesPrice: 0.0035,
-		cacheReadsPrice: 0.007,
+		inputPrice: 3.5,
+		outputPrice: 7,
+		cacheWritesPrice: 3.5,
+		cacheReadsPrice: 7,
 	},
 	"qwen-plus": {
 		maxTokens: 129_024,
 		contextWindow: 131_072,
 		supportsImages: false,
 		supportsPromptCache: false,
-		inputPrice: 0.0008,
-		outputPrice: 0.002,
-		cacheWritesPrice: 0.0004,
-		cacheReadsPrice: 0.001,
+		inputPrice: 0.8,
+		outputPrice: 2,
+		cacheWritesPrice: 0.8,
+		cacheReadsPrice: 0.2,
 	},
 	"qwen-turbo": {
 		maxTokens: 1_000_000,
 		contextWindow: 1_000_000,
 		supportsImages: false,
 		supportsPromptCache: false,
-		inputPrice: 0.0003,
-		outputPrice: 0.0006,
-		cacheWritesPrice: 0.00015,
-		cacheReadsPrice: 0.0003,
+		inputPrice: 0.3,
+		outputPrice: 0.6,
+		cacheWritesPrice: 0.3,
+		cacheReadsPrice: 0.6,
 	},
 	"qwen-max": {
 		maxTokens: 30_720,
 		contextWindow: 32_768,
 		supportsImages: false,
 		supportsPromptCache: false,
-		inputPrice: 0.0112,
-		outputPrice: 0.0448,
-		cacheWritesPrice: 0.0056,
-		cacheReadsPrice: 0.0224,
+		inputPrice: 2.4,
+		outputPrice: 9.6,
+		cacheWritesPrice: 2.4,
+		cacheReadsPrice: 9.6,
 	},
 	"deepseek-v3": {
 		maxTokens: 8_000,
@@ -548,6 +659,46 @@ export const qwenModels = {
 		outputPrice: 2.19,
 		cacheWritesPrice: 0.55,
 		cacheReadsPrice: 0.14,
+	},
+	"qwen-vl-max": {
+		maxTokens: 30_720,
+		contextWindow: 32_768,
+		supportsImages: true,
+		supportsPromptCache: false,
+		inputPrice: 3,
+		outputPrice: 9,
+		cacheWritesPrice: 3,
+		cacheReadsPrice: 9,
+	},
+	"qwen-vl-max-latest": {
+		maxTokens: 129_024,
+		contextWindow: 131_072,
+		supportsImages: true,
+		supportsPromptCache: false,
+		inputPrice: 3,
+		outputPrice: 9,
+		cacheWritesPrice: 3,
+		cacheReadsPrice: 9,
+	},
+	"qwen-vl-plus": {
+		maxTokens: 6_000,
+		contextWindow: 8_000,
+		supportsImages: true,
+		supportsPromptCache: false,
+		inputPrice: 1.5,
+		outputPrice: 4.5,
+		cacheWritesPrice: 1.5,
+		cacheReadsPrice: 4.5,
+	},
+	"qwen-vl-plus-latest": {
+		maxTokens: 129_024,
+		contextWindow: 131_072,
+		supportsImages: true,
+		supportsPromptCache: false,
+		inputPrice: 1.5,
+		outputPrice: 4.5,
+		cacheWritesPrice: 1.5,
+		cacheReadsPrice: 4.5,
 	},
 } as const satisfies Record<string, ModelInfo>
 
@@ -635,9 +786,9 @@ export const mistralModels = {
 export type LiteLLMModelId = string
 export const liteLlmDefaultModelId = "gpt-3.5-turbo"
 export const liteLlmModelInfoSaneDefaults: ModelInfo = {
-	maxTokens: 4096,
-	contextWindow: 8192,
-	supportsImages: false,
+	maxTokens: -1,
+	contextWindow: 128_000,
+	supportsImages: true,
 	supportsPromptCache: false,
 	inputPrice: 0,
 	outputPrice: 0,

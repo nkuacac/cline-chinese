@@ -10,7 +10,7 @@ export async function openImage(dataUri: string) {
 		return
 	}
 	const [, format, base64Data] = matches
-	const imageBuffer = Buffer.from(base64Data, "base64")
+	const imageBuffer = new Uint8Array(Buffer.from(base64Data, "base64"))
 	const tempFilePath = path.join(os.tmpdir(), `temp_image_${Date.now()}.${format}`)
 	try {
 		await vscode.workspace.fs.writeFile(vscode.Uri.file(tempFilePath), imageBuffer)

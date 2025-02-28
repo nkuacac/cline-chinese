@@ -7,6 +7,8 @@ import { Logger } from "./services/logging/Logger"
 import { createClineAPI } from "./exports"
 import "./utils/path" // necessary to have access to String.prototype.toPosix
 import { DIFF_VIEW_URI_SCHEME } from "./integrations/editor/DiffViewProvider"
+import assert from "node:assert"
+import { telemetryService } from "./services/telemetry/TelemetryService"
 
 /*
 使用 https://github.com/microsoft/vscode-webview-ui-toolkit 构建

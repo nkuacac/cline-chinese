@@ -69,7 +69,7 @@ const HistoryPreview = ({ showHistoryView }: HistoryPreviewProps) => {
 						fontSize: "0.85em",
 						textTransform: "uppercase",
 					}}>
-					最近任务
+					Recent Tasks
 				</span>
 			</div>
 
@@ -112,13 +112,13 @@ const HistoryPreview = ({ showHistoryView }: HistoryPreviewProps) => {
 										color: "var(--vscode-descriptionForeground)",
 									}}>
 									<span>
-										令牌数：↑{formatLargeNumber(item.tokensIn || 0)} ↓{formatLargeNumber(item.tokensOut || 0)}
+										Tokens: ↑{formatLargeNumber(item.tokensIn || 0)} ↓{formatLargeNumber(item.tokensOut || 0)}
 									</span>
 									{!!item.cacheWrites && (
 										<>
 											{" • "}
 											<span>
-												缓存：+{formatLargeNumber(item.cacheWrites || 0)} →{" "}
+												Cache: +{formatLargeNumber(item.cacheWrites || 0)} →{" "}
 												{formatLargeNumber(item.cacheReads || 0)}
 											</span>
 										</>
@@ -126,7 +126,7 @@ const HistoryPreview = ({ showHistoryView }: HistoryPreviewProps) => {
 									{!!item.totalCost && (
 										<>
 											{" • "}
-											<span>API 费用：${item.totalCost?.toFixed(4)}</span>
+											<span>API Cost: ${item.totalCost?.toFixed(4)}</span>
 										</>
 									)}
 								</div>
@@ -150,7 +150,7 @@ const HistoryPreview = ({ showHistoryView }: HistoryPreviewProps) => {
 								fontSize: "var(--vscode-font-size)",
 								color: "var(--vscode-descriptionForeground)",
 							}}>
-							查看所有历史记录
+							View all history
 						</div>
 					</VSCodeButton>
 				</div>

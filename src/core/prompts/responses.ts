@@ -6,8 +6,6 @@ import { ClineIgnoreController, LOCK_TEXT_SYMBOL } from "../ignore/ClineIgnoreCo
 export const formatResponse = {
 	toolDenied: () => `用户拒绝了此操作。`,
 
-	toolDeniedWithFeedback: (feedback?: string) => `用户拒绝了此操作并提供了以下反馈：\n<feedback>\n${feedback}\n</feedback>`,
-
 	toolError: (error?: string) => `The tool execution failed with the following error:\n<error>\n${error}\n</error>`,
 
 	clineIgnoreError: (path: string) =>

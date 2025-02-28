@@ -31,14 +31,14 @@ const ACTION_METADATA: {
 	{
 		id: "executeCommands",
 		label: "执行安全命令",
-		shortName: "命令",
-		description: "允许执行安全的终端命令。如果模型判断某个命令可能具有破坏性，仍会要求获得批准。",
+		shortName: "命令行",
+		description: "允许执行安全的终端命令。如果模型判断某个命令可能具有破坏性，仍然会要求批准。",
 	},
 	{
 		id: "useBrowser",
 		label: "使用浏览器",
 		shortName: "浏览器",
-		description: "允许在无头浏览器中启动并与任何网站交互。",
+		description: "允许在无头浏览器中启动和访问任何网站。",
 	},
 	{
 		id: "useMcp",
@@ -53,7 +53,7 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 	const [isExpanded, setIsExpanded] = useState(false)
 	const [isHoveringCollapsibleSection, setIsHoveringCollapsibleSection] = useState(false)
 
-	// 注意不要使用部分对象进行修改，因为展开运算符只进行浅拷贝
+	// Careful not to use partials to mutate since spread operator only does shallow copy
 
 	const enabledActions = ACTION_METADATA.filter((action) => autoApprovalSettings.actions[action.id])
 	const enabledActionsList = enabledActions.map((action) => action.shortName).join(", ")
@@ -74,13 +74,13 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 
 	const updateAction = useCallback(
 		(actionId: keyof AutoApprovalSettings["actions"], value: boolean) => {
-			// 计算新的动作状态
+			// Calculate what the new actions state will be
 			const newActions = {
 				...autoApprovalSettings.actions,
 				[actionId]: value,
 			}
 
-			// 检查是否会有任何启用的动作
+			// Check if this will result in any enabled actions
 			const willHaveEnabledActions = Object.values(newActions).some(Boolean)
 
 			vscode.postMessage({
@@ -88,7 +88,7 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 				autoApprovalSettings: {
 					...autoApprovalSettings,
 					actions: newActions,
-					// 如果没有启用的动作，确保主开关关闭
+					// If no actions will be enabled, ensure the main toggle is off
 					enabled: willHaveEnabledActions ? autoApprovalSettings.enabled : false,
 				},
 			})
@@ -168,12 +168,10 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 					// }}
 					onClick={(e) => {
 						/*
-						vscode web toolkit 的 bug：当以编程方式更改 vscodecheckbox 的值时，它会使用旧状态调用其 onChange。
-						这导致 updateEnabled 使用旧版本的 autoApprovalSettings，实际上撤消了由最后一个动作被取消选中触发的状态更改。
-						一个简单的解决方法是不使用 onChange，而是使用 onClick。我们很幸运这是一个复选框，新值只是当前状态的相反值。
+						vscode web toolkit bug: when changing the value of a vscodecheckbox programmatically, it will call its onChange with stale state. This led to updateEnabled being called with an old version of autoApprovalSettings, effectively undoing the state change that was triggered by the last action being unchecked. A simple workaround is to just not use onChange and instead use onClick. We are lucky this is a checkbox and the newvalue is simply opposite of current state.
 						*/
 						if (!hasEnabledActions) return
-						e.stopPropagation() // 阻止点击事件冒泡到父元素，在这种情况下阻止展开/折叠
+						e.stopPropagation() // stops click from bubbling up to the parent, in this case stopping the expanding/collapsing
 						updateEnabled(!autoApprovalSettings.enabled)
 					}}
 				/>
@@ -181,7 +179,7 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 					isHovered={isHoveringCollapsibleSection}
 					style={{ cursor: "pointer" }}
 					onClick={() => {
-						// 防止与父元素冲突
+						// to prevent this from counteracting parent
 						if (hasEnabledActions) {
 							setIsExpanded((prev) => !prev)
 						}
@@ -263,7 +261,7 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 							value={autoApprovalSettings.maxRequests.toString()}
 							onInput={(e) => {
 								const input = e.target as HTMLInputElement
-								// 移除任何非数字字符
+								// Remove any non-numeric characters
 								input.value = input.value.replace(/[^0-9]/g, "")
 								const value = parseInt(input.value)
 								if (!isNaN(value) && value > 0) {
@@ -271,7 +269,7 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 								}
 							}}
 							onKeyDown={(e) => {
-								// 阻止非数字键（除了退格键、删除键、箭头键）
+								// Prevent non-numeric keys (except for backspace, delete, arrows)
 								if (!/^\d$/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight"].includes(e.key)) {
 									e.preventDefault()
 								}
@@ -285,7 +283,7 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 							fontSize: "12px",
 							marginBottom: "10px",
 						}}>
-						Cline 将自动发出这么多次 API 请求，然后才会请求批准以继续任务。
+						Cline 将在请求批准继续任务之前自动发出这么多次 API 请求。
 					</div>
 					<div style={{ margin: "6px 0" }}>
 						<VSCodeCheckbox
@@ -302,7 +300,7 @@ const AutoApproveMenu = ({ style }: AutoApproveMenuProps) => {
 								color: getAsVar(VSC_DESCRIPTION_FOREGROUND),
 								fontSize: "12px",
 							}}>
-							当 Cline 需要批准以继续操作或任务完成时接收系统通知。
+							当 Cline 需要批准继续执行或任务完成时接收系统通知。
 						</div>
 					</div>
 				</div>

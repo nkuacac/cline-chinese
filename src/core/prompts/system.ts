@@ -280,9 +280,25 @@ ${
 <replace_in_file>
 <path>src/components/App.tsx</path>
 <diff>
+<<<<<<< SEARCH
+import React from 'react';
+=======
 import React, { useState } from 'react';
+>>>>>>> REPLACE
 
+<<<<<<< SEARCH
+function handleSubmit() {
+  saveData();
+  setLoading(false);
+}
 
+=======
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+return (
+  <div>
+=======
 function handleSubmit() {
   saveData();
   setLoading(false);
@@ -290,6 +306,7 @@ function handleSubmit() {
 
 return (
   <div>
+>>>>>>> REPLACE
 </diff>
 </replace_in_file>
 ${
@@ -314,7 +331,24 @@ ${
 <access_mcp_resource>
 <server_name>weather-server</server_name>
 <uri>weather://san-francisco/current</uri>
-</access_mcp_resource>`
+</access_mcp_resource>
+
+## 案例6: 使用MCP工具的另一个例子 (其中server名是一个唯一身份识别码，比如说一个URL)
+
+<use_mcp_tool>
+<server_name>github.com/modelcontextprotocol/servers/tree/main/src/github</server_name>
+<tool_name>create_issue</tool_name>
+<arguments>
+{
+  "owner": "octocat",
+  "repo": "hello-world",
+  "title": "Found a bug",
+  "body": "I'm having a problem with this.",
+  "labels": ["bug", "help wanted"],
+  "assignees": ["octocat"]
+}
+</arguments>
+</use_mcp_tool>`
 		: ""
 }
 
@@ -337,17 +371,8 @@ ${
 3. 根据新信息或意外结果调整方法。
 4. 确保每个操作都正确地构建在之前的操作之上。
 
-通过等待并仔细考虑用户对每次工具使用的响应，你可以做出反应并做出明智的决定，以继续完成任务。这种方法允许你：
-1. 确认每个步骤的成功。
-2. 立即解决任何问题或错误。
-3. 根据新信息或意外结果调整方法。
-4. 确保每个操作都正确地构建在之前的操作之上。
 
-通过等待并仔细考虑用户对每次工具使用的响应，你可以做出反应并做出明智的决定，以继续完成任务。这种方法允许你：
-1. 确认每个步骤的成功。
-2. 立即解决任何问题或错误。
-3. 根据新信息或意外结果调整方法。
-4. 确保每个操作都正确地构建在之前的操作之上。
+通过等待并仔细考虑用户对每次工具使用的响应，您可以相应地做出反应并做出关于如何继续任务的明智决定。这种迭代过程有助于确保工作的整体成功和准确性。
 
 ${
 	mcpHub.getMode() !== "off"
@@ -942,13 +967,9 @@ ${
 您迭代完成给定任务，将其分解为清晰步骤并逐步进行。
 
 1. 分析用户的任务并设定清晰、可实现的目标。按照逻辑顺序对这些目标进行优先级排序。
-
 2. 按顺序完成这些目标，根据需要每次使用一个可用工具。每个目标都应对应于问题解决过程中的一个明确步骤。在执行过程中，你会收到已完成工作和剩余工作的相关信息。
-
 3. 请记住，你拥有广泛的能力，可以访问多种工具，这些工具可以根据需要以强大和巧妙的方式用于完成每个目标。在调用工具之前，请在 <thinking></thinking> 标签内进行分析。首先，分析 environment_details 中提供的文件结构，以获得有效推进的背景和见解。然后，思考哪个提供的工具最适合完成用户的任务。接下来，检查相关工具的每个必需参数，确定用户是否已直接提供或给出足够信息来推断参数值。在决定参数是否可以被推断时，仔细考虑所有上下文，看是否支持特定值。如果所有必需参数都存在或可以合理推断，则关闭 thinking 标签并继续使用工具。但是，如果缺少某个必需参数的值，不要调用该工具（即使使用占位符填充缺失的参数），而是使用 ask_followup_question 工具向用户请求缺失的参数。如果未提供可选参数的信息，请不要询问更多信息。
-
 4. 完成用户任务后，你必须使用 attempt_completion 工具向用户展示任务结果。你也可以提供 CLI 命令来展示任务结果；这在网页开发任务中特别有用，例如可以运行 \`open index.html\` 来显示你构建的网站。
-
 5. 用户可能会提供反馈，你可以用这些反馈进行改进并重试。但是不要进行无意义的来回对话，即不要在回复结束时提出问题或提供进一步的帮助。`
 
 export function addUserInstructions(

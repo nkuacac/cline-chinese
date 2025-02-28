@@ -41,6 +41,7 @@ import VSCodeButtonLink from "../common/VSCodeButtonLink"
 import OpenRouterModelPicker, { ModelDescriptionMarkdown } from "./OpenRouterModelPicker"
 import styled from "styled-components"
 import * as vscodemodels from "vscode"
+import { getAsVar, VSC_DESCRIPTION_FOREGROUND } from "../../utils/vscStyles"
 
 interface ApiOptionsProps {
 	showModelOptions: boolean
@@ -80,6 +81,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 	const [vsCodeLmModels, setVsCodeLmModels] = useState<vscodemodels.LanguageModelChatSelector[]>([])
 	const [anthropicBaseUrlSelected, setAnthropicBaseUrlSelected] = useState(!!apiConfiguration?.anthropicBaseUrl)
 	const [azureApiVersionSelected, setAzureApiVersionSelected] = useState(!!apiConfiguration?.azureApiVersion)
+	const [modelConfigurationSelected, setModelConfigurationSelected] = useState(false)
 	const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
 
 	const handleInputChange = (field: keyof ApiConfiguration) => (event: any) => {
@@ -132,12 +134,12 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 	useEvent("message", handleMessage)
 
 	/*
-	VSCodeDropdown 有一个开放的错误，其中动态渲染的选项不会自动选择提供的 value 属性。您可以通过比较它与普通的 select/option 元素来看到这一点，后者按预期工作。
+	VSCodeDropdown has an open bug where dynamically rendered options don't auto select the provided value prop. You can see this for yourself by comparing  it with normal select/option elements, which work as expected.
 	https://github.com/microsoft/vscode-webview-ui-toolkit/issues/433
 
-	在我们的例子中，当用户在提供者之间切换时，我们根据提供者、该提供者的默认模型和用户可能选择的模型重新计算 selectedModelId。不幸的是，VSCodeDropdown 组件不会选择这个计算值，而是默认选择第一个“选择一个模型...”选项，这使得它看起来像是模型在切换提供者时被清除了，但实际上并非如此。
+	In our case, when the user switches between providers, we recalculate the selectedModelId depending on the provider, the default model for that provider, and a modelId that the user may have selected. Unfortunately, the VSCodeDropdown component wouldn't select this calculated value, and would default to the first "Select a model..." option instead, which makes it seem like the model was cleared out when it wasn't.
 
-	作为解决方法，我们为每个提供者创建单独的 dropdown 实例，然后根据当前提供者有条件地渲染它们。
+	As a workaround, we create separate instances of the dropdown for each provider, and then conditionally render the one that matches the current provider.
 	*/
 	const createDropdown = (models: Record<string, ModelInfo>) => {
 		return (
@@ -146,7 +148,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 				value={selectedModelId}
 				onChange={handleInputChange("apiModelId")}
 				style={{ width: "100%" }}>
-				<VSCodeOption value="">选择一个模型...</VSCodeOption>
+				<VSCodeOption value="">选择模型...</VSCodeOption>
 				{Object.keys(models).map((modelId) => (
 					<VSCodeOption
 						key={modelId}
@@ -167,7 +169,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 		<div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: isPopup ? -10 : 0 }}>
 			<DropdownContainer className="dropdown-container">
 				<label htmlFor="api-provider">
-					<span style={{ fontWeight: 500 }}>API供应商</span>
+					<span style={{ fontWeight: 500 }}>API Provider</span>
 				</label>
 				<VSCodeDropdown
 					id="api-provider"
@@ -203,8 +205,8 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						style={{ width: "100%" }}
 						type="password"
 						onInput={handleInputChange("apiKey")}
-						placeholder="输入 API 密钥...">
-						<span style={{ fontWeight: 500 }}>Anthropic API 密钥</span>
+						placeholder="Enter API Key...">
+						<span style={{ fontWeight: 500 }}>Anthropic API Key</span>
 					</VSCodeTextField>
 
 					<VSCodeCheckbox
@@ -219,7 +221,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 								})
 							}
 						}}>
-						使用自定义基础 URL
+						Use custom base URL
 					</VSCodeCheckbox>
 
 					{anthropicBaseUrlSelected && (
@@ -238,7 +240,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							marginTop: 3,
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						此密钥仅存储在本地，并且仅用于从此扩展发送 API 请求。
+						此密钥仅存储在本地，仅用于从此扩展发送 API 请求。
 						{!apiConfiguration?.apiKey && (
 							<VSCodeLink
 								href="https://console.anthropic.com/settings/keys"
@@ -246,7 +248,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 									display: "inline",
 									fontSize: "inherit",
 								}}>
-								您可以在此处注册获取 Anthropic API 密钥。
+								You can get an Anthropic API key by signing up here.
 							</VSCodeLink>
 						)}
 					</p>
@@ -260,8 +262,8 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						style={{ width: "100%" }}
 						type="password"
 						onInput={handleInputChange("openAiNativeApiKey")}
-						placeholder="输入 API 密钥...">
-						<span style={{ fontWeight: 500 }}>OpenAI API 密钥</span>
+						placeholder="Enter API Key...">
+						<span style={{ fontWeight: 500 }}>OpenAI API Key</span>
 					</VSCodeTextField>
 					<p
 						style={{
@@ -269,7 +271,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							marginTop: 3,
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						此密钥仅存储在本地，并且仅用于从此扩展发送 API 请求。
+						此密钥仅存储在本地，仅用于从此扩展发送 API 请求。
 						{!apiConfiguration?.openAiNativeApiKey && (
 							<VSCodeLink
 								href="https://platform.openai.com/api-keys"
@@ -277,7 +279,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 									display: "inline",
 									fontSize: "inherit",
 								}}>
-								您可以在此处注册获取 OpenAI API 密钥。
+								You can get an OpenAI API key by signing up here.
 							</VSCodeLink>
 						)}
 					</p>
@@ -291,8 +293,8 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						style={{ width: "100%" }}
 						type="password"
 						onInput={handleInputChange("deepSeekApiKey")}
-						placeholder="输入 API 密钥...">
-						<span style={{ fontWeight: 500 }}>DeepSeek API 密钥</span>
+						placeholder="Enter API Key...">
+						<span style={{ fontWeight: 500 }}>DeepSeek API Key</span>
 					</VSCodeTextField>
 					<p
 						style={{
@@ -300,7 +302,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							marginTop: 3,
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						此密钥仅存储在本地，并且仅用于从此扩展发送 API 请求。
+						此密钥仅存储在本地，仅用于从此扩展发送 API 请求。
 						{!apiConfiguration?.deepSeekApiKey && (
 							<VSCodeLink
 								href="https://www.deepseek.com/"
@@ -308,7 +310,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 									display: "inline",
 									fontSize: "inherit",
 								}}>
-								您可以在此处注册获取 DeepSeek API 密钥。
+								You can get a DeepSeek API key by signing up here.
 							</VSCodeLink>
 						)}
 					</p>
@@ -330,7 +332,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 								position: "relative",
 							}}>
 							<VSCodeOption value="china">中国 API</VSCodeOption>
-							<VSCodeOption value="nternational">国际 API</VSCodeOption>
+							<VSCodeOption value="international">国际 API</VSCodeOption>
 						</VSCodeDropdown>
 					</DropdownContainer>
 					<p
@@ -339,15 +341,15 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							marginTop: 3,
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						请根据您的位置选择适当的 API 接口。如果您在中国，请选择中国 API 接口。否则，请选择国际 API 接口。
+						请根据您的位置选择合适的 API 接口。如果您在中国，请选择中国 API 接口。否则，请选择国际 API 接口。
 					</p>
 					<VSCodeTextField
 						value={apiConfiguration?.qwenApiKey || ""}
 						style={{ width: "100%" }}
 						type="password"
 						onInput={handleInputChange("qwenApiKey")}
-						placeholder="输入 API 密钥...">
-						<span style={{ fontWeight: 500 }}>Qwen API 密钥</span>
+						placeholder="Enter API Key...">
+						<span style={{ fontWeight: 500 }}>通义千问 API 密钥</span>
 					</VSCodeTextField>
 					<p
 						style={{
@@ -355,7 +357,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							marginTop: 3,
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						此密钥仅存储在本地，并且仅用于从此扩展发送 API 请求。
+						此密钥仅存储在本地，仅用于从此扩展发送 API 请求。
 						{!apiConfiguration?.qwenApiKey && (
 							<VSCodeLink
 								href="https://bailian.console.aliyun.com/"
@@ -363,7 +365,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 									display: "inline",
 									fontSize: "inherit",
 								}}>
-								您可以在此处注册获取 Qwen API 密钥。
+								You can get a Qwen API key by signing up here.
 							</VSCodeLink>
 						)}
 					</p>
@@ -377,7 +379,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						style={{ width: "100%" }}
 						type="password"
 						onInput={handleInputChange("mistralApiKey")}
-						placeholder="输入 API 密钥...">
+						placeholder="Enter API Key...">
 						<span style={{ fontWeight: 500 }}>Mistral API 密钥</span>
 					</VSCodeTextField>
 					<p
@@ -386,7 +388,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							marginTop: 3,
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						此密钥仅存储在本地，并且仅用于从此扩展发送 API 请求。
+						此密钥仅存储在本地，仅用于从此扩展发送 API 请求。
 						{!apiConfiguration?.mistralApiKey && (
 							<VSCodeLink
 								href="https://console.mistral.ai/codestral"
@@ -394,7 +396,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 									display: "inline",
 									fontSize: "inherit",
 								}}>
-								您可以在此处注册获取 Mistral API 密钥。
+								You can get a Mistral API key by signing up here.
 							</VSCodeLink>
 						)}
 					</p>
@@ -408,7 +410,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						style={{ width: "100%" }}
 						type="password"
 						onInput={handleInputChange("openRouterApiKey")}
-						placeholder="输入 API 密钥...">
+						placeholder="Enter API Key...">
 						<span style={{ fontWeight: 500 }}>OpenRouter API 密钥</span>
 					</VSCodeTextField>
 					{!apiConfiguration?.openRouterApiKey && (
@@ -416,7 +418,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							href={getOpenRouterAuthUrl(uriScheme)}
 							style={{ margin: "5px 0 0 0" }}
 							appearance="secondary">
-							获取 OpenRouter API 密钥
+							Get OpenRouter API Key
 						</VSCodeButtonLink>
 					)}
 					<p
@@ -425,13 +427,11 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							marginTop: "5px",
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						此密钥仅存储在本地，并且仅用于从此扩展发送 API 请求。{" "}
-						{/* {!apiConfiguration?.openRouterApiKey && (
-							<span style={{ color: "var(--vscode-charts-green)" }}>
-								(<span style={{ fontWeight: 500 }}>Note:</span> OpenRouter is recommended for high rate
-								limits, prompt caching, and wider selection of models.)
-							</span>
-						)} */}
+						此密钥仅存储在本地，仅用于从此扩展发送 API 请求。{" "}
+						<span style={{ color: "var(--vscode-charts-green)" }}>
+							(<span style={{ fontWeight: 500 }}>注意：</span> OpenRouter
+							推荐用于高速率限制、提示缓存和更广泛的模型选择。)
+						</span>
 					</p>
 				</div>
 			)}
@@ -467,42 +467,42 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						</VSCodeTextField>
 					) : (
 						<>
-					<VSCodeTextField
-						value={apiConfiguration?.awsAccessKey || ""}
-						style={{ width: "100%" }}
-						type="password"
-						onInput={handleInputChange("awsAccessKey")}
-						placeholder="输入访问密钥...">
-						<span style={{ fontWeight: 500 }}>AWS 访问密钥</span>
-					</VSCodeTextField>
-					<VSCodeTextField
-						value={apiConfiguration?.awsSecretKey || ""}
-						style={{ width: "100%" }}
-						type="password"
-						onInput={handleInputChange("awsSecretKey")}
-						placeholder="输入秘密密钥...">
-						<span style={{ fontWeight: 500 }}>AWS 秘密密钥</span>
-					</VSCodeTextField>
-					<VSCodeTextField
-						value={apiConfiguration?.awsSessionToken || ""}
-						style={{ width: "100%" }}
-						type="password"
-						onInput={handleInputChange("awsSessionToken")}
-						placeholder="输入会话令牌...">
-						<span style={{ fontWeight: 500 }}>AWS 会话令牌</span>
-					</VSCodeTextField>
-				</>
-			)}
+							<VSCodeTextField
+								value={apiConfiguration?.awsAccessKey || ""}
+								style={{ width: "100%" }}
+								type="password"
+								onInput={handleInputChange("awsAccessKey")}
+								placeholder="Enter Access Key...">
+								<span style={{ fontWeight: 500 }}>AWS Access Key</span>
+							</VSCodeTextField>
+							<VSCodeTextField
+								value={apiConfiguration?.awsSecretKey || ""}
+								style={{ width: "100%" }}
+								type="password"
+								onInput={handleInputChange("awsSecretKey")}
+								placeholder="Enter Secret Key...">
+								<span style={{ fontWeight: 500 }}>AWS Secret Key</span>
+							</VSCodeTextField>
+							<VSCodeTextField
+								value={apiConfiguration?.awsSessionToken || ""}
+								style={{ width: "100%" }}
+								type="password"
+								onInput={handleInputChange("awsSessionToken")}
+								placeholder="Enter Session Token...">
+								<span style={{ fontWeight: 500 }}>AWS Session Token</span>
+							</VSCodeTextField>
+						</>
+					)}
 					<DropdownContainer zIndex={DROPDOWN_Z_INDEX - 1} className="dropdown-container">
 						<label htmlFor="aws-region-dropdown">
-							<span style={{ fontWeight: 500 }}>AWS 区域</span>
+							<span style={{ fontWeight: 500 }}>AWS Region</span>
 						</label>
 						<VSCodeDropdown
 							id="aws-region-dropdown"
 							value={apiConfiguration?.awsRegion || ""}
 							style={{ width: "100%" }}
 							onChange={handleInputChange("awsRegion")}>
-							<VSCodeOption value="">选择一个区域...</VSCodeOption>
+							<VSCodeOption value="">Select a region...</VSCodeOption>
 							{/* The user will have to choose a region that supports the model they use, but this shouldn't be a problem since they'd have to request access for it in that region in the first place. */}
 							<VSCodeOption value="us-east-1">us-east-1</VSCodeOption>
 							<VSCodeOption value="us-east-2">us-east-2</VSCodeOption>
@@ -539,7 +539,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 								awsUseCrossRegionInference: isChecked,
 							})
 						}}>
-						使用跨区域推理
+						Use cross-region inference
 					</VSCodeCheckbox>
 					<p
 						style={{
@@ -574,19 +574,19 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						value={apiConfiguration?.vertexProjectId || ""}
 						style={{ width: "100%" }}
 						onInput={handleInputChange("vertexProjectId")}
-						placeholder="输入项目 ID...">
-						<span style={{ fontWeight: 500 }}>Google Cloud 项目 ID</span>
+						placeholder="Enter Project ID...">
+						<span style={{ fontWeight: 500 }}>Google Cloud Project ID</span>
 					</VSCodeTextField>
 					<DropdownContainer zIndex={DROPDOWN_Z_INDEX - 2} className="dropdown-container">
 						<label htmlFor="vertex-region-dropdown">
-							<span style={{ fontWeight: 500 }}>Google Cloud 区域</span>
+							<span style={{ fontWeight: 500 }}>Google Cloud Region</span>
 						</label>
 						<VSCodeDropdown
 							id="vertex-region-dropdown"
 							value={apiConfiguration?.vertexRegion || ""}
 							style={{ width: "100%" }}
 							onChange={handleInputChange("vertexRegion")}>
-							<VSCodeOption value="">选择一个区域...</VSCodeOption>
+							<VSCodeOption value="">Select a region...</VSCodeOption>
 							<VSCodeOption value="us-east5">us-east5</VSCodeOption>
 							<VSCodeOption value="us-central1">us-central1</VSCodeOption>
 							<VSCodeOption value="europe-west1">europe-west1</VSCodeOption>
@@ -600,16 +600,16 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							marginTop: "5px",
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						要使用 Google Cloud Vertex AI，您需要
+						To use Google Cloud Vertex AI, you need to
 						<VSCodeLink
 							href="https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/use-claude#before_you_begin"
 							style={{ display: "inline", fontSize: "inherit" }}>
-							{"1) 创建 Google Cloud 账户 › 启用 Vertex AI API › 启用所需的 Claude 模型,"}
+							{"1) create a Google Cloud account › enable the Vertex AI API › enable the desired Claude models,"}
 						</VSCodeLink>{" "}
 						<VSCodeLink
 							href="https://cloud.google.com/docs/authentication/provide-credentials-adc#google-idp"
 							style={{ display: "inline", fontSize: "inherit" }}>
-							{"2) 安装 Google Cloud CLI › 配置 Application Default Credentials."}
+							{"2) install the Google Cloud CLI › configure Application Default Credentials."}
 						</VSCodeLink>
 					</p>
 				</div>
@@ -622,8 +622,8 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						style={{ width: "100%" }}
 						type="password"
 						onInput={handleInputChange("geminiApiKey")}
-						placeholder="输入 API 密钥...">
-						<span style={{ fontWeight: 500 }}>Gemini API 密钥</span>
+						placeholder="Enter API Key...">
+						<span style={{ fontWeight: 500 }}>Gemini API Key</span>
 					</VSCodeTextField>
 					<p
 						style={{
@@ -631,7 +631,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							marginTop: 3,
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						此密钥仅存储在本地，并且仅用于从此扩展发送 API 请求。
+						此密钥仅存储在本地，仅用于从此扩展发送 API 请求。
 						{!apiConfiguration?.geminiApiKey && (
 							<VSCodeLink
 								href="https://ai.google.dev/"
@@ -639,7 +639,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 									display: "inline",
 									fontSize: "inherit",
 								}}>
-								您可以在此处注册获取 Gemini API 密钥。
+								You can get a Gemini API key by signing up here.
 							</VSCodeLink>
 						)}
 					</p>
@@ -653,23 +653,23 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						style={{ width: "100%" }}
 						type="url"
 						onInput={handleInputChange("openAiBaseUrl")}
-						placeholder={"输入基础 URL..."}>
-						<span style={{ fontWeight: 500 }}>基础 URL</span>
+						placeholder={"Enter base URL..."}>
+						<span style={{ fontWeight: 500 }}>Base URL</span>
 					</VSCodeTextField>
 					<VSCodeTextField
 						value={apiConfiguration?.openAiApiKey || ""}
 						style={{ width: "100%" }}
 						type="password"
 						onInput={handleInputChange("openAiApiKey")}
-						placeholder="输入 API 密钥...">
-						<span style={{ fontWeight: 500 }}>API 密钥</span>
+						placeholder="Enter API Key...">
+						<span style={{ fontWeight: 500 }}>API Key</span>
 					</VSCodeTextField>
 					<VSCodeTextField
 						value={apiConfiguration?.openAiModelId || ""}
 						style={{ width: "100%" }}
 						onInput={handleInputChange("openAiModelId")}
-						placeholder={"输入模型 ID..."}>
-						<span style={{ fontWeight: 500 }}>模型 ID</span>
+						placeholder={"Enter Model ID..."}>
+						<span style={{ fontWeight: 500 }}>Model ID</span>
 					</VSCodeTextField>
 					<VSCodeCheckbox
 						checked={azureApiVersionSelected}
@@ -683,7 +683,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 								})
 							}
 						}}>
-						设置 Azure API 版本
+						Set Azure API version
 					</VSCodeCheckbox>
 					{azureApiVersionSelected && (
 						<VSCodeTextField
@@ -692,6 +692,127 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							onInput={handleInputChange("azureApiVersion")}
 							placeholder={`Default: ${azureOpenAiDefaultApiVersion}`}
 						/>
+					)}
+					<div
+						style={{
+							color: getAsVar(VSC_DESCRIPTION_FOREGROUND),
+							display: "flex",
+							margin: "10px 0",
+							cursor: "pointer",
+							alignItems: "center",
+						}}
+						onClick={() => setModelConfigurationSelected((val) => !val)}>
+						<span
+							className={`codicon ${modelConfigurationSelected ? "codicon-chevron-down" : "codicon-chevron-right"}`}
+							style={{
+								marginRight: "4px",
+							}}></span>
+						<span
+							style={{
+								fontWeight: 700,
+								textTransform: "uppercase",
+							}}>
+							Model Configuration
+						</span>
+					</div>
+					{modelConfigurationSelected && (
+						<>
+							<VSCodeCheckbox
+								checked={!!apiConfiguration?.openAiModelInfo?.supportsImages}
+								onChange={(e: any) => {
+									const isChecked = e.target.checked === true
+									let modelInfo = apiConfiguration?.openAiModelInfo
+										? apiConfiguration.openAiModelInfo
+										: { ...openAiModelInfoSaneDefaults }
+									modelInfo.supportsImages = isChecked
+									setApiConfiguration({
+										...apiConfiguration,
+										openAiModelInfo: modelInfo,
+									})
+								}}>
+								Supports Images
+							</VSCodeCheckbox>
+							<div style={{ display: "flex", gap: 10, marginTop: "5px" }}>
+								<VSCodeTextField
+									value={
+										apiConfiguration?.openAiModelInfo?.contextWindow
+											? apiConfiguration.openAiModelInfo.contextWindow.toString()
+											: openAiModelInfoSaneDefaults.contextWindow?.toString()
+									}
+									style={{ flex: 1 }}
+									onInput={(input: any) => {
+										let modelInfo = apiConfiguration?.openAiModelInfo
+											? apiConfiguration.openAiModelInfo
+											: { ...openAiModelInfoSaneDefaults }
+										modelInfo.contextWindow = Number(input.target.value)
+										setApiConfiguration({
+											...apiConfiguration,
+											openAiModelInfo: modelInfo,
+										})
+									}}>
+									<span style={{ fontWeight: 500 }}>Context Window Size</span>
+								</VSCodeTextField>
+								<VSCodeTextField
+									value={
+										apiConfiguration?.openAiModelInfo?.maxTokens
+											? apiConfiguration.openAiModelInfo.maxTokens.toString()
+											: openAiModelInfoSaneDefaults.maxTokens?.toString()
+									}
+									style={{ flex: 1 }}
+									onInput={(input: any) => {
+										let modelInfo = apiConfiguration?.openAiModelInfo
+											? apiConfiguration.openAiModelInfo
+											: { ...openAiModelInfoSaneDefaults }
+										modelInfo.maxTokens = input.target.value
+										setApiConfiguration({
+											...apiConfiguration,
+											openAiModelInfo: modelInfo,
+										})
+									}}>
+									<span style={{ fontWeight: 500 }}>Max Output Tokens</span>
+								</VSCodeTextField>
+							</div>
+							<div style={{ display: "flex", gap: 10, marginTop: "5px" }}>
+								<VSCodeTextField
+									value={
+										apiConfiguration?.openAiModelInfo?.inputPrice
+											? apiConfiguration.openAiModelInfo.inputPrice.toString()
+											: openAiModelInfoSaneDefaults.inputPrice?.toString()
+									}
+									style={{ flex: 1 }}
+									onInput={(input: any) => {
+										let modelInfo = apiConfiguration?.openAiModelInfo
+											? apiConfiguration.openAiModelInfo
+											: { ...openAiModelInfoSaneDefaults }
+										modelInfo.inputPrice = input.target.value
+										setApiConfiguration({
+											...apiConfiguration,
+											openAiModelInfo: modelInfo,
+										})
+									}}>
+									<span style={{ fontWeight: 500 }}>Input Price / 1M tokens</span>
+								</VSCodeTextField>
+								<VSCodeTextField
+									value={
+										apiConfiguration?.openAiModelInfo?.outputPrice
+											? apiConfiguration.openAiModelInfo.outputPrice.toString()
+											: openAiModelInfoSaneDefaults.outputPrice?.toString()
+									}
+									style={{ flex: 1 }}
+									onInput={(input: any) => {
+										let modelInfo = apiConfiguration?.openAiModelInfo
+											? apiConfiguration.openAiModelInfo
+											: { ...openAiModelInfoSaneDefaults }
+										modelInfo.outputPrice = input.target.value
+										setApiConfiguration({
+											...apiConfiguration,
+											openAiModelInfo: modelInfo,
+										})
+									}}>
+									<span style={{ fontWeight: 500 }}>Output Price / 1M tokens</span>
+								</VSCodeTextField>
+							</div>
+						</>
 					)}
 					<p
 						style={{
@@ -773,7 +894,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 				<div>
 					<DropdownContainer zIndex={DROPDOWN_Z_INDEX - 2} className="dropdown-container">
 						<label htmlFor="vscode-lm-model">
-							<span style={{ fontWeight: 500 }}>语言模型</span>
+							<span style={{ fontWeight: 500 }}>Language Model</span>
 						</label>
 						{vsCodeLmModels.length > 0 ? (
 							<VSCodeDropdown
@@ -796,7 +917,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 									})
 								}}
 								style={{ width: "100%" }}>
-								<VSCodeOption value="">选择一个模型...</VSCodeOption>
+								<VSCodeOption value="">Select a model...</VSCodeOption>
 								{vsCodeLmModels.map((model) => (
 									<VSCodeOption
 										key={`${model.vendor}/${model.family}`}
@@ -812,8 +933,9 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 									marginTop: "5px",
 									color: "var(--vscode-descriptionForeground)",
 								}}>
-								VS Code 语言模型 API 允许您运行其他 VS Code 扩展提供的模型 (包括但不限于 GitHub
-								Copilot)。最简单的方法是安装 VS Marketplace 中的 Copilot 扩展并启用 Claude 3.5 Sonnet。
+								The VS Code Language Model API allows you to run models provided by other VS Code extensions
+								(including but not limited to GitHub Copilot). The easiest way to get started is to install the
+								Copilot extension from the VS Marketplace and enabling Claude 3.7 Sonnet.
 							</p>
 						)}
 
@@ -824,7 +946,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 								color: "var(--vscode-errorForeground)",
 								fontWeight: 500,
 							}}>
-							注意：这是一个非常实验性的集成，可能无法按预期工作。
+							Note: This is a very experimental integration and may not work as expected.
 						</p>
 					</DropdownContainer>
 				</div>
@@ -838,14 +960,14 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						type="url"
 						onInput={handleInputChange("lmStudioBaseUrl")}
 						placeholder={"Default: http://localhost:1234"}>
-						<span style={{ fontWeight: 500 }}>基础 URL (可选)</span>
+						<span style={{ fontWeight: 500 }}>Base URL (optional)</span>
 					</VSCodeTextField>
 					<VSCodeTextField
 						value={apiConfiguration?.lmStudioModelId || ""}
 						style={{ width: "100%" }}
 						onInput={handleInputChange("lmStudioModelId")}
 						placeholder={"e.g. meta-llama-3.1-8b-instruct"}>
-						<span style={{ fontWeight: 500 }}>模型 ID</span>
+						<span style={{ fontWeight: 500 }}>Model ID</span>
 					</VSCodeTextField>
 					{lmStudioModels.length > 0 && (
 						<VSCodeRadioGroup
@@ -876,20 +998,21 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							marginTop: "5px",
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						LM Studio允许您在本地计算机上运行模型。有关如何入门的说明，请参阅他们的
+						LM Studio allows you to run models locally on your computer. For instructions on how to get started, see
+						their
 						<VSCodeLink href="https://lmstudio.ai/docs" style={{ display: "inline", fontSize: "inherit" }}>
-							快速入门指南。
+							quickstart guide.
 						</VSCodeLink>
-						您还需要启动 LM Studio 的
+						You will also need to start LM Studio's{" "}
 						<VSCodeLink
 							href="https://lmstudio.ai/docs/basics/server"
 							style={{ display: "inline", fontSize: "inherit" }}>
-							本地服务器
+							local server
 						</VSCodeLink>{" "}
-						功能以使用此扩展。
+						feature to use it with this extension.{" "}
 						<span style={{ color: "var(--vscode-errorForeground)" }}>
-							(<span style={{ fontWeight: 500 }}>注意：</span> Cline 使用复杂的提示并最适合 Claude
-							模型。不太强大的模型可能无法按预期工作。)
+							(<span style={{ fontWeight: 500 }}>Note:</span> Cline uses complex prompts and works best with Claude
+							models. Less capable models may not work as expected.)
 						</span>
 					</p>
 				</div>
@@ -898,19 +1021,27 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 			{selectedProvider === "litellm" && (
 				<div>
 					<VSCodeTextField
+						value={apiConfiguration?.liteLlmApiKey || ""}
+						style={{ width: "100%" }}
+						type="password"
+						onInput={handleInputChange("liteLlmApiKey")}
+						placeholder="Default: noop">
+						<span style={{ fontWeight: 500 }}>API Key</span>
+					</VSCodeTextField>
+					<VSCodeTextField
 						value={apiConfiguration?.liteLlmBaseUrl || ""}
 						style={{ width: "100%" }}
 						type="url"
 						onInput={handleInputChange("liteLlmBaseUrl")}
 						placeholder={"Default: http://localhost:4000"}>
-						<span style={{ fontWeight: 500 }}>基础 URL (可选)</span>
+						<span style={{ fontWeight: 500 }}>Base URL (optional)</span>
 					</VSCodeTextField>
 					<VSCodeTextField
 						value={apiConfiguration?.liteLlmModelId || ""}
 						style={{ width: "100%" }}
 						onInput={handleInputChange("liteLlmModelId")}
 						placeholder={"e.g. gpt-4"}>
-						<span style={{ fontWeight: 500 }}>模型 ID</span>
+						<span style={{ fontWeight: 500 }}>Model ID</span>
 					</VSCodeTextField>
 					<p
 						style={{
@@ -918,11 +1049,11 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							marginTop: "5px",
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						LiteLLM 提供了一个统一的接口来访问各种 LLM 提供者的模型。请参阅他们的
+						LiteLLM provides a unified interface to access various LLM providers' models. See their{" "}
 						<VSCodeLink href="https://docs.litellm.ai/docs/" style={{ display: "inline", fontSize: "inherit" }}>
-							快速入门指南
+							quickstart guide
 						</VSCodeLink>{" "}
-						了解更多信息。
+						for more information.
 					</p>
 				</div>
 			)}
@@ -935,14 +1066,14 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 						type="url"
 						onInput={handleInputChange("ollamaBaseUrl")}
 						placeholder={"Default: http://localhost:11434"}>
-						<span style={{ fontWeight: 500 }}>基础 URL (可选)</span>
+						<span style={{ fontWeight: 500 }}>Base URL (optional)</span>
 					</VSCodeTextField>
 					<VSCodeTextField
 						value={apiConfiguration?.ollamaModelId || ""}
 						style={{ width: "100%" }}
 						onInput={handleInputChange("ollamaModelId")}
 						placeholder={"e.g. llama3.1"}>
-						<span style={{ fontWeight: 500 }}>模型 ID</span>
+						<span style={{ fontWeight: 500 }}>Model ID</span>
 					</VSCodeTextField>
 					{ollamaModels.length > 0 && (
 						<VSCodeRadioGroup
@@ -973,15 +1104,16 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							marginTop: "5px",
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						Ollama 允许您在本地计算机上运行模型。有关如何入门的说明，请参阅他们的
+						Ollama allows you to run models locally on your computer. For instructions on how to get started, see
+						their
 						<VSCodeLink
 							href="https://github.com/ollama/ollama/blob/main/README.md"
 							style={{ display: "inline", fontSize: "inherit" }}>
-							快速入门指南。
+							quickstart guide.
 						</VSCodeLink>
 						<span style={{ color: "var(--vscode-errorForeground)" }}>
-							(<span style={{ fontWeight: 500 }}>注意：</span> Cline 使用复杂的提示并最适合 Claude
-							模型。不太强大的模型可能无法按预期工作。)
+							(<span style={{ fontWeight: 500 }}>Note:</span> Cline uses complex prompts and works best with Claude
+							models. Less capable models may not work as expected.)
 						</span>
 					</p>
 				</div>
@@ -1007,7 +1139,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 					<>
 						<DropdownContainer zIndex={DROPDOWN_Z_INDEX - 2} className="dropdown-container">
 							<label htmlFor="model-id">
-								<span style={{ fontWeight: 500 }}>模型</span>
+								<span style={{ fontWeight: 500 }}>Model</span>
 							</label>
 							{selectedProvider === "anthropic" && createDropdown(anthropicModels)}
 							{selectedProvider === "bedrock" && createDropdown(bedrockModels)}
@@ -1046,7 +1178,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 }
 
 export function getOpenRouterAuthUrl(uriScheme?: string) {
-	return `https://openrouter.ai/auth?callback_url=${uriScheme || "vscode"}://cline/openrouter`
+	return `https://openrouter.ai/auth?callback_url=${uriScheme || "vscode"}://saoudrizwan.claude-dev/openrouter`
 }
 
 export const formatPrice = (price: number) => {
@@ -1086,55 +1218,56 @@ export const ModelInfoView = ({
 		<ModelInfoSupportsItem
 			key="supportsImages"
 			isSupported={modelInfo.supportsImages ?? false}
-			supportsLabel="支持图片"
-			doesNotSupportLabel="不支持图片"
+			supportsLabel="Supports images"
+			doesNotSupportLabel="Does not support images"
 		/>,
 		<ModelInfoSupportsItem
 			key="supportsComputerUse"
 			isSupported={modelInfo.supportsComputerUse ?? false}
-			supportsLabel="支持计算机使用"
-			doesNotSupportLabel="不支持计算机使用"
+			supportsLabel="Supports computer use"
+			doesNotSupportLabel="Does not support computer use"
 		/>,
 		!isGemini && (
 			<ModelInfoSupportsItem
 				key="supportsPromptCache"
 				isSupported={modelInfo.supportsPromptCache}
-				supportsLabel="支持提示缓存"
-				doesNotSupportLabel="不支持提示缓存"
+				supportsLabel="Supports prompt caching"
+				doesNotSupportLabel="Does not support prompt caching"
 			/>
 		),
 		modelInfo.maxTokens !== undefined && modelInfo.maxTokens > 0 && (
 			<span key="maxTokens">
-				<span style={{ fontWeight: 500 }}>最大输出：</span> {modelInfo.maxTokens?.toLocaleString()} tokens
+				<span style={{ fontWeight: 500 }}>Max output:</span> {modelInfo.maxTokens?.toLocaleString()} tokens
 			</span>
 		),
 		modelInfo.inputPrice !== undefined && modelInfo.inputPrice > 0 && (
 			<span key="inputPrice">
-				<span style={{ fontWeight: 500 }}>输入价格：</span> {formatPrice(modelInfo.inputPrice)}/百万 tokens
+				<span style={{ fontWeight: 500 }}>Input price:</span> {formatPrice(modelInfo.inputPrice)}/million tokens
 			</span>
 		),
 		modelInfo.supportsPromptCache && modelInfo.cacheWritesPrice && (
 			<span key="cacheWritesPrice">
-				<span style={{ fontWeight: 500 }}>缓存写入价格：</span> {formatPrice(modelInfo.cacheWritesPrice || 0)}
-				/百万 tokens
+				<span style={{ fontWeight: 500 }}>Cache writes price:</span> {formatPrice(modelInfo.cacheWritesPrice || 0)}
+				/million tokens
 			</span>
 		),
 		modelInfo.supportsPromptCache && modelInfo.cacheReadsPrice && (
 			<span key="cacheReadsPrice">
-				<span style={{ fontWeight: 500 }}>缓存读取价格：</span> {formatPrice(modelInfo.cacheReadsPrice || 0)}/百万 tokens
+				<span style={{ fontWeight: 500 }}>Cache reads price:</span> {formatPrice(modelInfo.cacheReadsPrice || 0)}/million
+				tokens
 			</span>
 		),
 		modelInfo.outputPrice !== undefined && modelInfo.outputPrice > 0 && (
 			<span key="outputPrice">
-				<span style={{ fontWeight: 500 }}>输出价格：</span> {formatPrice(modelInfo.outputPrice)}/百万 tokens
+				<span style={{ fontWeight: 500 }}>Output price:</span> {formatPrice(modelInfo.outputPrice)}/million tokens
 			</span>
 		),
 		isGemini && (
 			<span key="geminiInfo" style={{ fontStyle: "italic" }}>
-				* 每分钟免费{selectedModelId && selectedModelId.includes("flash") ? "15" : "2"}次请求。超出后，
-				费用取决于提示大小。{" "}
+				* Free up to {selectedModelId && selectedModelId.includes("flash") ? "15" : "2"} requests per minute. After that,
+				billing depends on prompt size.{" "}
 				<VSCodeLink href="https://ai.google.dev/pricing" style={{ display: "inline", fontSize: "inherit" }}>
-					更多信息请参见定价详情。
+					For more info, see pricing details.
 				</VSCodeLink>
 			</span>
 		),
@@ -1258,7 +1391,7 @@ export function normalizeApiConfiguration(apiConfiguration?: ApiConfiguration): 
 					: "",
 				selectedModelInfo: {
 					...openAiModelInfoSaneDefaults,
-					supportsImages: false, // VSCode LM API 目前不支持图像
+					supportsImages: false, // VSCode LM API currently doesn't support images
 				},
 			}
 		case "litellm":

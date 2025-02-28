@@ -1,18 +1,26 @@
-import { VSCodeButton, VSCodeLink, VSCodeTextArea } from "@vscode/webview-ui-toolkit/react"
+import { VSCodeButton, VSCodeCheckbox, VSCodeLink, VSCodeTextArea } from "@vscode/webview-ui-toolkit/react"
 import { memo, useEffect, useState } from "react"
 import { useExtensionState } from "../../context/ExtensionStateContext"
 import { validateApiConfiguration, validateModelId } from "../../utils/validate"
 import { vscode } from "../../utils/vscode"
-import ApiOptions from "./ApiOptions"
 import SettingsButton from "../common/SettingsButton"
-const IS_DEV = false // FIXME: use flags when packaging
+import ApiOptions from "./ApiOptions"
+const { IS_DEV } = process.env
 
 type SettingsViewProps = {
 	onDone: () => void
 }
 
 const SettingsView = ({ onDone }: SettingsViewProps) => {
-	const { apiConfiguration, version, customInstructions, setCustomInstructions, openRouterModels } = useExtensionState()
+	const {
+		apiConfiguration,
+		version,
+		customInstructions,
+		setCustomInstructions,
+		openRouterModels,
+		telemetrySetting,
+		setTelemetrySetting,
+	} = useExtensionState()
 	const [apiErrorMessage, setApiErrorMessage] = useState<string | undefined>(undefined)
 	const [modelIdErrorMessage, setModelIdErrorMessage] = useState<string | undefined>(undefined)
 
@@ -28,6 +36,10 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 			vscode.postMessage({
 				type: "customInstructions",
 				text: customInstructions,
+			})
+			vscode.postMessage({
+				type: "telemetrySetting",
+				text: telemetrySetting,
 			})
 			onDone()
 		}
@@ -100,25 +112,46 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 						style={{ width: "100%" }}
 						resize="vertical"
 						rows={4}
-						placeholder={'例如："运行单元测试", "使用 TypeScript 和 async/await", "用中文交流"'}
+						placeholder={'例如："运行单元测试", "使用TypeScript和async/await", "使用中文交流"'}
 						onInput={(e: any) => setCustomInstructions(e.target?.value ?? "")}>
 						<span style={{ fontWeight: "500" }}>自定义指令</span>
 					</VSCodeTextArea>
+					<p style={{ fontSize: "12px", marginTop: "5px", color: "var(--vscode-descriptionForeground)" }}>
+						这些指令将被添加到每个请求的系统提示的末尾。
+					</p>
+				</div>
+
+				<div style={{ marginBottom: 5 }}>
+					<VSCodeCheckbox
+						style={{ marginBottom: "5px" }}
+						checked={telemetrySetting === "enabled"}
+						onChange={(e: any) => {
+							const checked = e.target.checked === true
+							setTelemetrySetting(checked ? "enabled" : "disabled")
+						}}>
+						允许匿名错误和使用情况报告
+					</VSCodeCheckbox>
 					<p
 						style={{
 							fontSize: "12px",
 							marginTop: "5px",
 							color: "var(--vscode-descriptionForeground)",
 						}}>
-						这些指令会被添加到每个请求发送的系统提示的末尾。
+						通过发送匿名使用数据和错误报告来帮助改进Cline。我们绝不会发送任何代码、提示或个人信息。查看我们的{" "}
+						<VSCodeLink
+							href="hhttps://github.com/HybridTalentComputing/cline-chinese/blob/main/docs/PRIVACY.md"
+							style={{ fontSize: "inherit" }}>
+							隐私政策
+						</VSCodeLink>{" "}
+						了解更多详情。
 					</p>
 				</div>
 
 				{IS_DEV && (
 					<>
-						<div style={{ marginTop: "10px", marginBottom: "4px" }}>调试</div>
+						<div style={{ marginTop: "10px", marginBottom: "4px" }}>Debug</div>
 						<VSCodeButton onClick={handleResetState} style={{ marginTop: "5px", width: "auto" }}>
-							重置状态
+							Reset State
 						</VSCodeButton>
 						<p
 							style={{
@@ -126,7 +159,7 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 								marginTop: "5px",
 								color: "var(--vscode-descriptionForeground)",
 							}}>
-							这将重置扩展中的所有全局状态和密钥存储。
+							This will reset all global state and secret storage in the extension.
 						</p>
 					</>
 				)}
@@ -162,8 +195,8 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 							padding: 0,
 						}}>
 						如果您有任何问题或反馈，欢迎在{" "}
-						<VSCodeLink href="https://github.com/cline/cline" style={{ display: "inline" }}>
-							https://github.com/cline/cline
+						<VSCodeLink href="hhttps://github.com/HybridTalentComputing/cline-chinese" style={{ display: "inline" }}>
+							https://github.com/HybridTalentComputing/cline-chinese
 						</VSCodeLink>{" "}
 						提出问题
 					</p>

@@ -26,6 +26,7 @@ import BrowserSessionRow from "./BrowserSessionRow"
 import ChatRow from "./ChatRow"
 import ChatTextArea from "./ChatTextArea"
 import TaskHeader from "./TaskHeader"
+import TelemetryBanner from "../common/TelemetryBanner"
 
 interface ChatViewProps {
 	isHidden: boolean
@@ -37,7 +38,7 @@ interface ChatViewProps {
 export const MAX_IMAGES_PER_MESSAGE = 20 // Anthropic limits to 20 images
 
 const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryView }: ChatViewProps) => {
-	const { version, clineMessages: messages, taskHistory, apiConfiguration } = useExtensionState()
+	const { version, clineMessages: messages, taskHistory, apiConfiguration, telemetrySetting } = useExtensionState()
 
 	//const task = messages.length > 0 ? (messages[0].say === "task" ? messages[0] : undefined) : undefined) : undefined
 	const task = useMemo(() => messages.at(0), [messages]) // leaving this less safe version here since if the first message is not a task, then the extension is in a bad state and needs to be debugged (see Cline.abort)
@@ -324,67 +325,99 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 	/*
 	This logic depends on the useEffect[messages] above to set clineAsk, after which buttons are shown and we then send an askResponse to the extension.
 	*/
-	const handlePrimaryButtonClick = useCallback(() => {
-		switch (clineAsk) {
-			case "api_req_failed":
-			case "command":
-			case "command_output":
-			case "tool":
-			case "browser_action_launch":
-			case "use_mcp_server":
-			case "resume_task":
-			case "mistake_limit_reached":
-			case "auto_approval_max_req_reached":
-				vscode.postMessage({
-					type: "askResponse",
-					askResponse: "yesButtonClicked",
-				})
-				break
-			case "completion_result":
-			case "resume_completed_task":
-				// extension waiting for feedback. but we can just present a new task button
-				startNewTask()
-				break
-		}
-		setTextAreaDisabled(true)
-		setClineAsk(undefined)
-		setEnableButtons(false)
-		// setPrimaryButtonText(undefined)
-		// setSecondaryButtonText(undefined)
-		disableAutoScrollRef.current = false
-	}, [clineAsk, startNewTask])
+	const handlePrimaryButtonClick = useCallback(
+		(text?: string, images?: string[]) => {
+			const trimmedInput = text?.trim()
+			switch (clineAsk) {
+				case "api_req_failed":
+				case "command":
+				case "command_output":
+				case "tool":
+				case "browser_action_launch":
+				case "use_mcp_server":
+				case "resume_task":
+				case "mistake_limit_reached":
+				case "auto_approval_max_req_reached":
+					if (trimmedInput || (images && images.length > 0)) {
+						vscode.postMessage({
+							type: "askResponse",
+							askResponse: "yesButtonClicked",
+							text: trimmedInput,
+							images: images,
+						})
+					} else {
+						vscode.postMessage({
+							type: "askResponse",
+							askResponse: "yesButtonClicked",
+						})
+					}
+					// Clear input state after sending
+					setInputValue("")
+					setSelectedImages([])
+					break
+				case "completion_result":
+				case "resume_completed_task":
+					// extension waiting for feedback. but we can just present a new task button
+					startNewTask()
+					break
+			}
+			setTextAreaDisabled(true)
+			setClineAsk(undefined)
+			setEnableButtons(false)
+			// setPrimaryButtonText(undefined)
+			// setSecondaryButtonText(undefined)
+			disableAutoScrollRef.current = false
+		},
+		[clineAsk, startNewTask],
+	)
 
-	const handleSecondaryButtonClick = useCallback(() => {
-		if (isStreaming) {
-			vscode.postMessage({ type: "cancelTask" })
-			setDidClickCancel(true)
-			return
-		}
+	const handleSecondaryButtonClick = useCallback(
+		(text?: string, images?: string[]) => {
+			const trimmedInput = text?.trim()
+			if (isStreaming) {
+				vscode.postMessage({ type: "cancelTask" })
+				setDidClickCancel(true)
+				return
+			}
 
-		switch (clineAsk) {
-			case "api_req_failed":
-			case "mistake_limit_reached":
-			case "auto_approval_max_req_reached":
-				startNewTask()
-				break
-			case "command":
-			case "tool":
-			case "browser_action_launch":
-			case "use_mcp_server":
-				// responds to the API with a "This operation failed" and lets it try again
-				vscode.postMessage({
-					type: "askResponse",
-					askResponse: "noButtonClicked",
-				})
-				break
-		}
-		setTextAreaDisabled(true)
-		setClineAsk(undefined)
-		setEnableButtons(false)
-		// setPrimaryButtonText(undefined)
-		// setSecondaryButtonText(undefined)
-		disableAutoScrollRef.current = false
-	}, [clineAsk, startNewTask, isStreaming])
+			switch (clineAsk) {
+				case "api_req_failed":
+				case "mistake_limit_reached":
+				case "auto_approval_max_req_reached":
+					startNewTask()
+					break
+				case "command":
+				case "tool":
+				case "browser_action_launch":
+				case "use_mcp_server":
+					if (trimmedInput || (images && images.length > 0)) {
+						vscode.postMessage({
+							type: "askResponse",
+							askResponse: "noButtonClicked",
+							text: trimmedInput,
+							images: images,
+						})
+					} else {
+						// responds to the API with a "This operation failed" and lets it try again
+						vscode.postMessage({
+							type: "askResponse",
+							askResponse: "noButtonClicked",
+						})
+					}
+					// Clear input state after sending
+					setInputValue("")
+					setSelectedImages([])
+					break
+			}
+			setTextAreaDisabled(true)
+			setClineAsk(undefined)
+			setEnableButtons(false)
+			// setPrimaryButtonText(undefined)
+			// setSecondaryButtonText(undefined)
+			disableAutoScrollRef.current = false
+		},
+		[clineAsk, startNewTask, isStreaming],
+	)
 
 	const handleTaskCloseButtonClick = useCallback(() => {
 		startNewTask()
@@ -426,10 +459,10 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 							handleSendMessage(message.text ?? "", message.images ?? [])
 							break
 						case "primaryButtonClick":
-							handlePrimaryButtonClick()
+							handlePrimaryButtonClick(message.text ?? "", message.images ?? [])
 							break
 						case "secondaryButtonClick":
-							handleSecondaryButtonClick()
+							handleSecondaryButtonClick(message.text ?? "", message.images ?? [])
 							break
 					}
 			}
@@ -681,7 +714,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 	useEvent("wheel", handleWheel, window, { passive: true }) // passive improves scrolling performance
 
 	const placeholderText = useMemo(() => {
-		const text = task ? "在此输入消息..." : "在此输入你的任务..."
+		const text = task ? "Type a message..." : "Type your task here..."
 		return text
 	}, [task])
 
@@ -757,18 +790,17 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 						flexDirection: "column",
 						paddingBottom: "10px",
 					}}>
+					{telemetrySetting === "unset" && <TelemetryBanner />}
+
 					{showAnnouncement && <Announcement version={version} hideAnnouncement={hideAnnouncement} />}
 					<div style={{ padding: "0 20px", flexShrink: 0 }}>
-						<h2>我能为你做些什么？</h2>
+						<h2>What can I do for you?</h2>
 						<p>
-							感谢{" "}
-							<VSCodeLink
-								href="https://www-cdn.anthropic.com/fed9cc193a14b84131812372d8d5857f8f304c52/Model_Card_Claude_3_Addendum.pdf"
-								style={{ display: "inline" }}>
-								Claude 3.5 Sonnet 的代理编码能力
-							</VSCodeLink>{" "}
-							，我可以一步步处理复杂的软件开发任务。通过创建和编辑文件、探索复杂项目、使用浏览器和执行终端命令（在你授予权限后）等工具，我可以提供超越代码补全或技术支持的帮助。我甚至可以使用
-							MCP 创建新工具并扩展自己的能力。
+							Thanks to Claude 3.7 Sonnet's agentic coding capabilities, I can handle complex software development
+							tasks step-by-step. With tools that let me create & edit files, explore complex projects, use the
+							browser, and execute terminal commands (after you grant permission), I can assist you in ways that go
+							beyond code completion or tech support. I can even use MCP to create new tools and extend my own
+							capabilities.
 						</p>
 					</div>
 					{taskHistory.length > 0 && <HistoryPreview showHistoryView={showHistoryView} />}
@@ -867,7 +899,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 										flex: secondaryButtonText ? 1 : 2,
 										marginRight: secondaryButtonText ? "6px" : "0",
 									}}
-									onClick={handlePrimaryButtonClick}>
+									onClick={() => handlePrimaryButtonClick(inputValue, selectedImages)}>
 									{primaryButtonText}
 								</VSCodeButton>
 							)}
@@ -879,7 +911,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 										flex: isStreaming ? 2 : 1,
 										marginLeft: isStreaming ? 0 : "6px",
 									}}
-									onClick={handleSecondaryButtonClick}>
+									onClick={() => handleSecondaryButtonClick(inputValue, selectedImages)}>
 									{isStreaming ? "Cancel" : secondaryButtonText}
 								</VSCodeButton>
 							)}

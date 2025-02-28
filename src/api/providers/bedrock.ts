@@ -3,49 +3,25 @@ import { Anthropic } from "@anthropic-ai/sdk"
 import { ApiHandler } from "../"
 import { ApiHandlerOptions, bedrockDefaultModelId, BedrockModelId, bedrockModels, ModelInfo } from "../../shared/api"
 import { ApiStream } from "../transform/stream"
+import { fromNodeProviderChain } from "@aws-sdk/credential-providers"
 
 // https://docs.anthropic.com/en/api/claude-on-amazon-bedrock
 export class AwsBedrockHandler implements ApiHandler {
 	private options: ApiHandlerOptions
-	private client: AnthropicBedrock
 
 	constructor(options: ApiHandlerOptions) {
 		this.options = options
-		this.client = new AnthropicBedrock({
-			// 可以通过提供以下密钥进行身份验证，或使用默认的 AWS 凭证提供程序，
-			// 例如使用 ~/.aws/credentials 或 "AWS_SECRET_ACCESS_KEY" 和 "AWS_ACCESS_KEY_ID" 环境变量。
-			...(this.options.awsAccessKey ? { awsAccessKey: this.options.awsAccessKey } : {}),
-			...(this.options.awsSecretKey ? { awsSecretKey: this.options.awsSecretKey } : {}),
-			...(this.options.awsSessionToken ? { awsSessionToken: this.options.awsSessionToken } : {}),
-
-			// awsRegion 更改请求发送到的 AWS 区域。默认情况下，我们读取 AWS_REGION，
-			// 如果不存在，则默认为 us-east-1。注意，我们不会从 ~/.aws/config 读取区域。
-			awsRegion: this.options.awsRegion,
-		})
 	}
 
 	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
-		// 跨区域推理需要在模型 ID 前加上区域前缀
-		let modelId: string
-		if (this.options.awsUseCrossRegionInference) {
-			let regionPrefix = (this.options.awsRegion || "").slice(0, 3)
-			switch (regionPrefix) {
-				case "us-":
-					modelId = `us.${this.getModel().id}`
-					break
-				case "eu-":
-					modelId = `eu.${this.getModel().id}`
-					break
-				default:
-					// 此区域不支持跨区域推理，回退到默认模型
-					modelId = this.getModel().id
-					break
-			}
-		} else {
-			modelId = this.getModel().id
-		}
+		// cross region inference requires prefixing the model id with the region
+		let modelId = await this.getModelId()
 
-		const stream = await this.client.messages.create({
+		// create anthropic client, using sessions created or renewed after this handler's
+		// initialization, and allowing for session renewal if necessary as well
+		let client = await this.getClient()
+
+		const stream = await client.messages.create({
 			model: modelId,
 			max_tokens: this.getModel().info.maxTokens || 8192,
 			temperature: 0,
@@ -110,6 +86,70 @@ export class AwsBedrockHandler implements ApiHandler {
 		return {
 			id: bedrockDefaultModelId,
 			info: bedrockModels[bedrockDefaultModelId],
+		}
+	}
+
+	private async getClient(): Promise<AnthropicBedrock> {
+		// Create AWS credentials by executing a an AWS provider chain exactly as the
+		// Anthropic SDK does it, by wrapping the default chain into a temporary process
+		// environment.
+		const providerChain = fromNodeProviderChain()
+		const credentials = await AwsBedrockHandler.withTempEnv(
+			() => {
+				AwsBedrockHandler.setEnv("AWS_REGION", this.options.awsRegion)
+				AwsBedrockHandler.setEnv("AWS_ACCESS_KEY_ID", this.options.awsAccessKey)
+				AwsBedrockHandler.setEnv("AWS_SECRET_ACCESS_KEY", this.options.awsSecretKey)
+				AwsBedrockHandler.setEnv("AWS_SESSION_TOKEN", this.options.awsSessionToken)
+				AwsBedrockHandler.setEnv("AWS_PROFILE", this.options.awsProfile)
+			},
+			() => providerChain(),
+		)
+
+		// Return an AnthropicBedrock client with the resolved/assumed credentials.
+		//
+		// When AnthropicBedrock creates its AWS client, the chain will execute very
+		// fast as the access/secret keys will already be already provided, and have
+		// a higher precedence than the profiles.
+		return new AnthropicBedrock({
+			awsAccessKey: credentials.accessKeyId,
+			awsSecretKey: credentials.secretAccessKey,
+			awsSessionToken: credentials.sessionToken,
+			awsRegion: this.options.awsRegion || "us-east-1",
+		})
+	}
+
+	private async getModelId(): Promise<string> {
+		if (this.options.awsUseCrossRegionInference) {
+			let regionPrefix = (this.options.awsRegion || "").slice(0, 3)
+			switch (regionPrefix) {
+				case "us-":
+					return `us.${this.getModel().id}`
+				case "eu-":
+					return `eu.${this.getModel().id}`
+					break
+				default:
+					// cross region inference is not supported in this region, falling back to default model
+					return this.getModel().id
+					break
+			}
+		}
+		return this.getModel().id
+	}
+
+	private static async withTempEnv<R>(updateEnv: () => void, fn: () => Promise<R>): Promise<R> {
+		const previousEnv = { ...process.env }
+
+		try {
+			updateEnv()
+			return await fn()
+		} finally {
+			process.env = previousEnv
+		}
+	}
+
+	private static async setEnv(key: string, value: string | undefined) {
+		if (key !== "" && value !== undefined) {
+			process.env[key] = value
 		}
 	}
 }
