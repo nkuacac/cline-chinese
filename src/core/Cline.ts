@@ -744,9 +744,9 @@ export class Cline {
 	async sayAndCreateMissingParamError(toolName: ToolUseName, paramName: string, relPath?: string) {
 		await this.say(
 			"error",
-			`Cline tried to use ${toolName}${
-				relPath ? ` for '${relPath.toPosix()}'` : ""
-			} without value for required parameter '${paramName}'. Retrying...`,
+			`Cline 尝试使用 ${toolName}${
+				relPath ? ` 处理 '${relPath.toPosix()}'` : ""
+			} 时缺少必需参数 '${paramName}'。正在重试...`,
 		)
 		return formatResponse.toolError(formatResponse.missingToolParameterError(paramName))
 	}
@@ -921,7 +921,7 @@ export class Cline {
 					const toolResponses: Anthropic.ToolResultBlockParam[] = toolUseBlocks.map((block) => ({
 						type: "tool_result",
 						tool_use_id: block.id,
-						content: "Task was interrupted before this tool call could be completed.",
+						content: "任务在此工具调用完成前被中断。",
 					}))
 					modifiedApiConversationHistory = [...existingApiConversationHistory] // no changes
 					modifiedOldUserContent = [...toolResponses]
@@ -960,7 +960,7 @@ export class Cline {
 							.map((toolUse) => ({
 								type: "tool_result",
 								tool_use_id: toolUse.id,
-								content: "Task was interrupted before this tool call could be completed.",
+								content: "任务在此工具调用完成前被中断。",
 							}))
 
 						modifiedApiConversationHistory = existingApiConversationHistory.slice(0, -1) // removes the last user message
@@ -974,10 +974,10 @@ export class Cline {
 					modifiedOldUserContent = [...existingUserContent]
 				}
 			} else {
-				throw new Error("Unexpected: Last message is not a user or assistant message")
+				throw new Error("意外错误：最后一条消息既不是用户消息也不是助手消息")
 			}
 		} else {
-			throw new Error("Unexpected: No existing API conversation history")
+			throw new Error("意外错误：没有找到现有的 API 对话历史记录")
 			// console.error("Unexpected: No existing API conversation history")
 			// modifiedApiConversationHistory = []
 			// modifiedOldUserContent = []
@@ -994,15 +994,15 @@ export class Cline {
 			const days = Math.floor(hours / 24)
 
 			if (days > 0) {
-				return `${days} day${days > 1 ? "s" : ""} ago`
+				return `${days} 天${days > 1 ? "" : ""}前`
 			}
 			if (hours > 0) {
-				return `${hours} hour${hours > 1 ? "s" : ""} ago`
+				return `${hours} 小时${hours > 1 ? "" : ""}前`
 			}
 			if (minutes > 0) {
-				return `${minutes} minute${minutes > 1 ? "s" : ""} ago`
+				return `${minutes} 分钟${minutes > 1 ? "" : ""}前`
 			}
-			return "just now"
+			return "刚刚"
 		})()
 
 		const wasRecent = lastClineMessage?.ts && Date.now() - lastClineMessage.ts < 30_000
@@ -1010,19 +1010,19 @@ export class Cline {
 		newUserContent.push({
 			type: "text",
 			text:
-				`[TASK RESUMPTION] ${
+				`[任务恢复] ${
 					this.chatSettings?.mode === "plan"
-						? `This task was interrupted ${agoText}. The conversation may have been incomplete. Be aware that the project state may have changed since then. The current working directory is now '${cwd.toPosix()}'.\n\nNote: If you previously attempted a tool use that the user did not provide a result for, you should assume the tool use was not successful. However you are in PLAN MODE, so rather than continuing the task, you must respond to the user's message.`
-						: `This task was interrupted ${agoText}. It may or may not be complete, so please reassess the task context. Be aware that the project state may have changed since then. The current working directory is now '${cwd.toPosix()}'. If the task has not been completed, retry the last step before interruption and proceed with completing the task.\n\nNote: If you previously attempted a tool use that the user did not provide a result for, you should assume the tool use was not successful and assess whether you should retry. If the last tool was a browser_action, the browser has been closed and you must launch a new browser if needed.`
+						? `此任务在 ${agoText} 被中断。对话可能未完成。请注意项目状态可能已经发生变化。当前工作目录是 '${cwd.toPosix()}'。\n\n注意：如果你之前尝试使用了某个工具但用户没有提供结果，你应该假设该工具使用未成功。但是你现在处于规划模式，所以不要继续执行任务，而是必须回应用户的消息。`
+						: `此任务在 ${agoText} 被中断。任务可能已完成也可能未完成，请重新评估任务上下文。请注意项目状态可能已经发生变化。当前工作目录是 '${cwd.toPosix()}'。如果任务未完成，请重试中断前的最后一步并继续完成任务。\n\n注意：如果你之前尝试使用了某个工具但用户没有提供结果，你应该假设该工具使用未成功并评估是否需要重试。如果最后使用的工具是 browser_action，浏览器已被关闭，如果需要你必须启动一个新的浏览器。`
 				}${
 					wasRecent
-						? "\n\nIMPORTANT: If the last tool use was a replace_in_file or write_to_file that was interrupted, the file was reverted back to its original state before the interrupted edit, and you do NOT need to re-read the file as you already have its up-to-date contents."
+						? "\n\n重要提示：如果最后使用的工具是 replace_in_file 或 write_to_file 并且被中断，文件已被恢复到编辑前的原始状态，你无需重新读取文件因为你已经有了其最新内容。"
 						: ""
 				}` +
 				(responseText
-					? `\n\n${this.chatSettings?.mode === "plan" ? "New message to respond to with plan_mode_response tool (be sure to provide your response in the <response> parameter)" : "New instructions for task continuation"}:\n<user_message>\n${responseText}\n</user_message>`
+					? `\n\n${this.chatSettings?.mode === "plan" ? "使用 plan_mode_response 工具回应新消息（请确保在 <response> 参数中提供你的回应）" : "任务继续的新指令"}：\n<user_message>\n${responseText}\n</user_message>`
 					: this.chatSettings.mode === "plan"
-						? "(The user did not provide a new message. Consider asking them how they'd like you to proceed, or to switch to Act mode to continue with the task.)"
+						? "（用户没有提供新消息。考虑询问他们希望如何继续，或切换到执行模式继续任务。）"
 						: ""),
 		})
 
@@ -1199,22 +1199,22 @@ export class Cline {
 			return [
 				true,
 				formatResponse.toolResult(
-					`Command is still running in the user's terminal.${
-						result.length > 0 ? `\nHere's the output so far:\n${result}` : ""
-					}\n\nThe user provided the following feedback:\n<feedback>\n${userFeedback.text}\n</feedback>`,
+					`命令仍在用户终端中运行。${
+						result.length > 0 ? `\n目前的输出内容：\n${result}` : ""
+					}\n\n用户提供了以下反馈：\n<feedback>\n${userFeedback.text}\n</feedback>`,
 					userFeedback.images,
 				),
 			]
 		}
 
 		if (completed) {
-			return [false, `Command executed.${result.length > 0 ? `\nOutput:\n${result}` : ""}`]
+			return [false, `命令已执行。${result.length > 0 ? `\n输出内容：\n${result}` : ""}`]
 		} else {
 			return [
 				false,
-				`Command is still running in the user's terminal.${
-					result.length > 0 ? `\nHere's the output so far:\n${result}` : ""
-				}\n\nYou will be updated on the terminal status and new output in the future.`,
+				`命令仍在用户终端中运行。${
+					result.length > 0 ? `\n目前的输出内容：\n${result}` : ""
+				}\n\n你将会收到关于终端状态和新输出的更新。`,
 			]
 		}
 	}
@@ -1253,12 +1253,12 @@ export class Cline {
 	async *attemptApiRequest(previousApiReqIndex: number): ApiStream {
 		// Wait for MCP servers to be connected before generating system prompt
 		await pWaitFor(() => this.providerRef.deref()?.mcpHub?.isConnecting !== true, { timeout: 10_000 }).catch(() => {
-			console.error("MCP servers failed to connect in time")
+			console.error("MCP 服务器连接超时")
 		})
 
 		const mcpHub = this.providerRef.deref()?.mcpHub
 		if (!mcpHub) {
-			throw new Error("MCP hub not available")
+			throw new Error("MCP hub 不可用")
 		}
 
 		const disableBrowserTool = vscode.workspace.getConfiguration("cline").get<boolean>("disableBrowserTool") ?? false
@@ -1275,17 +1275,17 @@ export class Cline {
 			try {
 				const ruleFileContent = (await fs.readFile(clineRulesFilePath, "utf8")).trim()
 				if (ruleFileContent) {
-					clineRulesFileInstructions = `# .clinerules\n\nThe following is provided by a root-level .clinerules file where the user has specified instructions for this working directory (${cwd.toPosix()})\n\n${ruleFileContent}`
+					clineRulesFileInstructions = `# .clinerules\n\n以下内容来自根目录的 .clinerules 文件，用户在其中为此工作目录 (${cwd.toPosix()}) 指定了相关指令\n\n${ruleFileContent}`
 				}
 			} catch {
-				console.error(`Failed to read .clinerules file at ${clineRulesFilePath}`)
+				console.error(`读取 ${clineRulesFilePath} 的 .clinerules 文件失败`)
 			}
 		}
 
 		const clineIgnoreContent = this.clineIgnoreController.clineIgnoreContent
 		let clineIgnoreInstructions: string | undefined
 		if (clineIgnoreContent) {
-			clineIgnoreInstructions = `# .clineignore\n\n(The following is provided by a root-level .clineignore file where the user has specified files and directories that should not be accessed. When using list_files, you'll notice a ${LOCK_TEXT_SYMBOL} next to files that are blocked. Attempting to access the file's contents e.g. through read_file will result in an error.)\n\n${clineIgnoreContent}\n.clineignore`
+			clineIgnoreInstructions = `# .clineignore\n\n(以下内容来自根目录的 .clineignore 文件，用户在其中指定了不应访问的文件和目录。使用 list_files 时，你会注意到被阻止的文件旁边有 ${LOCK_TEXT_SYMBOL} 标记。尝试通过 read_file 等方式访问这些文件的内容将导致错误。)\n\n${clineIgnoreContent}\n.clineignore`
 		}
 
 		if (settingsCustomInstructions || clineRulesFileInstructions) {
@@ -1357,18 +1357,19 @@ export class Cline {
 		} catch (error) {
 			const isOpenRouter = this.api instanceof OpenRouterHandler
 			if (isOpenRouter && !this.didAutomaticallyRetryFailedApiRequest) {
-				console.log("first chunk failed, waiting 1 second before retrying")
+				console.log("第一个数据块失败，等待 1 秒后重试")
 				await delay(1000)
 				this.didAutomaticallyRetryFailedApiRequest = true
 			} else {
-				// request failed after retrying automatically once, ask user if they want to retry again
-				// note that this api_req_failed ask is unique in that we only present this option if the api hasn't streamed any content yet (ie it fails on the first chunk due), as it would allow them to hit a retry button. However if the api failed mid-stream, it could be in any arbitrary state where some tools may have executed, so that error is handled differently and requires cancelling the task entirely.
+				// 自动重试一次失败后，询问用户是否要再次重试
+				// 注意：这个 api_req_failed 询问是独特的，因为我们只在 API 尚未开始传输任何内容时（即在第一个数据块失败时）才提供这个选项，这样用户就可以点击重试按钮。
+				// 但是如果 API 在传输过程中失败，可能会处于任意状态，一些工具可能已经执行过，所以这种错误的处理方式是完全取消任务。
 				const errorMessage = this.formatErrorWithStatusCode(error)
 
 				const { response } = await this.ask("api_req_failed", errorMessage)
 				if (response !== "yesButtonClicked") {
-					// this will never happen since if noButtonClicked, we will clear current task, aborting this instance
-					throw new Error("API request failed")
+					// 这种情况永远不会发生，因为如果点击了否定按钮，我们会清除当前任务，中止这个实例
+					throw new Error("API 请求失败")
 				}
 				await this.say("api_req_retried")
 			}
@@ -1385,7 +1386,7 @@ export class Cline {
 
 	async presentAssistantMessage() {
 		if (this.abort) {
-			throw new Error("Cline instance aborted")
+			throw new Error("Cline 实例已中止")
 		}
 
 		if (this.presentAssistantMessageLocked) {
@@ -1499,27 +1500,27 @@ export class Cline {
 				}
 
 				if (this.didRejectTool) {
-					// ignore any tool content after user has rejected tool once
+					// 用户拒绝了之前的工具后，忽略所有工具内容
 					if (!block.partial) {
 						this.userMessageContent.push({
 							type: "text",
-							text: `Skipping tool ${toolDescription()} due to user rejecting a previous tool.`,
+							text: `由于用户拒绝了之前的工具，跳过工具 ${toolDescription()}。`,
 						})
 					} else {
-						// partial tool after user rejected a previous tool
+						// 用户拒绝之前工具后的部分工具
 						this.userMessageContent.push({
 							type: "text",
-							text: `Tool ${toolDescription()} was interrupted and not executed due to user rejecting a previous tool.`,
+							text: `工具 ${toolDescription()} 被中断且未执行，因为用户拒绝了之前的工具。`,
 						})
 					}
 					break
 				}
 
 				if (this.didAlreadyUseTool) {
-					// ignore any content after a tool has already been used
+					// 忽略工具已被使用后的所有内容
 					this.userMessageContent.push({
 						type: "text",
-						text: `Tool [${block.name}] was not executed because a tool has already been used in this message. Only one tool may be used per message. You must assess the first tool's result before proceeding to use the next tool.`,
+						text: `工具 [${block.name}] 未被执行，因为本条消息中已经使用过一个工具。每条消息只能使用一个工具。你必须先评估第一个工具的结果，然后才能使用下一个工具。`,
 					})
 					break
 				}
@@ -1527,27 +1528,27 @@ export class Cline {
 				const pushToolResult = (content: ToolResponse) => {
 					this.userMessageContent.push({
 						type: "text",
-						text: `${toolDescription()} Result:`,
+						text: `${toolDescription()} 结果：`,
 					})
 					if (typeof content === "string") {
 						this.userMessageContent.push({
 							type: "text",
-							text: content || "(tool did not return anything)",
+							text: content || "(工具没有返回任何内容)",
 						})
 					} else {
 						this.userMessageContent.push(...content)
 					}
-					// once a tool result has been collected, ignore all other tool uses since we should only ever present one tool result per message
+					// 一旦收集到工具结果，就忽略所有其他工具使用，因为每条消息应该只显示一个工具结果
 					this.didAlreadyUseTool = true
 				}
 
-				// The user can approve, reject, or provide feedback (rejection). However the user may also send a message along with an approval, in which case we add a separate user message with this feedback.
+				// 用户可以批准、拒绝或提供反馈（拒绝）。但是用户也可能在批准的同时发送消息，这种情况下我们会添加一个单独的用户消息作为反馈。
 				const pushAdditionalToolFeedback = (feedback?: string, images?: string[]) => {
 					if (!feedback && !images) {
 						return
 					}
 					const content = formatResponse.toolResult(
-						`The user provided the following feedback:\n<feedback>\n${feedback}\n</feedback>`,
+						`用户提供了以下反馈：\n<feedback>\n${feedback}\n</feedback>`,
 						images,
 					)
 					if (typeof content === "string") {
@@ -1584,7 +1585,7 @@ export class Cline {
 				const showNotificationForApprovalIfAutoApprovalEnabled = (message: string) => {
 					if (this.autoApprovalSettings.enabled && this.autoApprovalSettings.enableNotifications) {
 						showSystemNotification({
-							subtitle: "Approval Required",
+							subtitle: "需要批准",
 							message,
 						})
 					}
@@ -1592,13 +1593,13 @@ export class Cline {
 
 				const handleError = async (action: string, error: Error) => {
 					if (this.abandoned) {
-						console.log("Ignoring error since task was abandoned (i.e. from task cancellation after resetting)")
+						console.log("忽略错误，因为任务已被放弃（即重置后取消任务）")
 						return
 					}
-					const errorString = `Error ${action}: ${JSON.stringify(serializeError(error))}`
+					const errorString = `${action} 错误：${JSON.stringify(serializeError(error))}`
 					await this.say(
 						"error",
-						`Error ${action}:\n${error.message ?? JSON.stringify(serializeError(error), null, 2)}`,
+						`${action} 错误：\n${error.message ?? JSON.stringify(serializeError(error), null, 2)}`,
 					)
 					// this.toolResults.push({
 					// 	type: "tool_result",
@@ -1690,10 +1691,10 @@ export class Cline {
 									pushToolResult(
 										formatResponse.toolError(
 											`${(error as Error)?.message}\n\n` +
-												`This is likely because the SEARCH block content doesn't match exactly with what's in the file, or if you used multiple SEARCH/REPLACE blocks they may not have been in the order they appear in the file.\n\n` +
-												`The file was reverted to its original state:\n\n` +
+												`这可能是因为 SEARCH 块的内容与文件中的内容不完全匹配，或者如果你使用了多个 SEARCH/REPLACE 块，它们可能没有按照在文件中出现的顺序排列。\n\n` +
+												`文件已恢复到原始状态：\n\n` +
 												`<file_content path="${relPath.toPosix()}">\n${this.diffViewProvider.originalContent}\n</file_content>\n\n` +
-												`Try again with a more precise SEARCH block.\n(If you keep running into this error, you may use the write_to_file tool as a workaround.)`,
+												`请使用更精确的 SEARCH 块重试。\n（如果你持续遇到这个错误，可以使用 write_to_file 工具作为替代方案。）`,
 										),
 									)
 									await this.diffViewProvider.revertChanges()
@@ -1817,12 +1818,10 @@ export class Cline {
 									let didApprove = true
 									const { response, text, images } = await this.ask("tool", completeMessage, false)
 									if (response !== "yesButtonClicked") {
-										// User either sent a message or pressed reject button
-										// TODO: add similar context for other tool denial responses, to emphasize ie that a command was not run
-										const fileDeniedNote = fileExists
-											? "The file was not updated, and maintains its original contents."
-											: "The file was not created."
-										pushToolResult(`The user denied this operation. ${fileDeniedNote}`)
+										// 用户发送了消息或点击了拒绝按钮
+										// TODO: 为其他工具拒绝响应添加类似的上下文，例如强调命令未被执行
+										const fileDeniedNote = fileExists ? "文件未被更新，保持原始内容。" : "文件未被创建。"
+										pushToolResult(`用户拒绝了此操作。${fileDeniedNote}`)
 										if (text || images?.length) {
 											pushAdditionalToolFeedback(text, images)
 											await this.say("user_feedback", text, images)
@@ -1857,28 +1856,28 @@ export class Cline {
 										} satisfies ClineSayTool),
 									)
 									pushToolResult(
-										`The user made the following updates to your content:\n\n${userEdits}\n\n` +
+										`用户对你的内容做了以下更新：\n\n${userEdits}\n\n` +
 											(autoFormattingEdits
-												? `The user's editor also applied the following auto-formatting to your content:\n\n${autoFormattingEdits}\n\n(Note: Pay close attention to changes such as single quotes being converted to double quotes, semicolons being removed or added, long lines being broken into multiple lines, adjusting indentation style, adding/removing trailing commas, etc. This will help you ensure future SEARCH/REPLACE operations to this file are accurate.)\n\n`
+												? `用户的编辑器还对你的内容应用了以下自动格式化：\n\n${autoFormattingEdits}\n\n(注意：请密切关注以下变化：单引号转换为双引号、分号的添加或删除、长行被拆分为多行、缩进样式调整、添加/删除尾随逗号等。这将帮助你确保对该文件的后续 SEARCH/REPLACE 操作准确无误。)\n\n`
 												: "") +
-											`The updated content, which includes both your original modifications and the additional edits, has been successfully saved to ${relPath.toPosix()}. Here is the full, updated content of the file that was saved:\n\n` +
+											`更新后的内容（包括你的原始修改和额外的编辑）已成功保存到 ${relPath.toPosix()}。以下是保存的文件完整内容：\n\n` +
 											`<final_file_content path="${relPath.toPosix()}">\n${finalContent}\n</final_file_content>\n\n` +
-											`Please note:\n` +
-											`1. You do not need to re-write the file with these changes, as they have already been applied.\n` +
-											`2. Proceed with the task using this updated file content as the new baseline.\n` +
-											`3. If the user's edits have addressed part of the task or changed the requirements, adjust your approach accordingly.` +
-											`4. IMPORTANT: For any future changes to this file, use the final_file_content shown above as your reference. This content reflects the current state of the file, including both user edits and any auto-formatting (e.g., if you used single quotes but the formatter converted them to double quotes). Always base your SEARCH/REPLACE operations on this final version to ensure accuracy.\n` +
+											`请注意：\n` +
+											`1. 你不需要用这些更改重写文件，因为它们已经被应用。\n` +
+											`2. 使用这个更新后的文件内容作为新的基准继续任务。\n` +
+											`3. 如果用户的编辑已经解决了部分任务或改变了需求，请相应地调整你的方法。` +
+											`4. 重要：对这个文件的任何后续更改，请使用上面显示的 final_file_content 作为参考。这个内容反映了文件的当前状态，包括用户编辑和任何自动格式化（例如，如果你使用了单引号但格式化器将其转换为双引号）。始终基于这个最终版本进行 SEARCH/REPLACE 操作以确保准确性。\n` +
 											`${newProblemsMessage}`,
 									)
 								} else {
 									pushToolResult(
-										`The content was successfully saved to ${relPath.toPosix()}.\n\n` +
+										`内容已成功保存到 ${relPath.toPosix()}。\n\n` +
 											(autoFormattingEdits
-												? `Along with your edits, the user's editor applied the following auto-formatting to your content:\n\n${autoFormattingEdits}\n\n(Note: Pay close attention to changes such as single quotes being converted to double quotes, semicolons being removed or added, long lines being broken into multiple lines, adjusting indentation style, adding/removing trailing commas, etc. This will help you ensure future SEARCH/REPLACE operations to this file are accurate.)\n\n`
+												? `除了你的编辑，用户的编辑器还对你的内容应用了以下自动格式化：\n\n${autoFormattingEdits}\n\n(注意：请密切关注以下变化：单引号转换为双引号、分号的添加或删除、长行被拆分为多行、缩进样式调整、添加/删除尾随逗号等。这将帮助你确保对该文件的后续 SEARCH/REPLACE 操作准确无误。)\n\n`
 												: "") +
-											`Here is the full, updated content of the file that was saved:\n\n` +
+											`以下是保存的文件完整内容：\n\n` +
 											`<final_file_content path="${relPath.toPosix()}">\n${finalContent}\n</final_file_content>\n\n` +
-											`IMPORTANT: For any future changes to this file, use the final_file_content shown above as your reference. This content reflects the current state of the file, including any auto-formatting (e.g., if you used single quotes but the formatter converted them to double quotes). Always base your SEARCH/REPLACE operations on this final version to ensure accuracy.\n\n` +
+											`重要：对这个文件的任何后续更改，请使用上面显示的 final_file_content 作为参考。这个内容反映了文件的当前状态，包括任何自动格式化（例如，如果你使用了单引号但格式化器将其转换为双引号）。始终基于这个最终版本进行 SEARCH/REPLACE 操作以确保准确性。\n\n` +
 											`${newProblemsMessage}`,
 									)
 								}
@@ -1949,7 +1948,7 @@ export class Cline {
 									this.consecutiveAutoApprovedRequestsCount++
 								} else {
 									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to read ${path.basename(absolutePath)}`,
+										`Cline 想要读取 ${path.basename(absolutePath)}`,
 									)
 									this.removeLastPartialMessageIfExistsWithType("say", "tool")
 									const didApprove = await askApproval("tool", completeMessage)
@@ -1964,7 +1963,7 @@ export class Cline {
 								break
 							}
 						} catch (error) {
-							await handleError("reading file", error)
+							await handleError("读取文件中", error)
 
 							break
 						}
@@ -2020,7 +2019,7 @@ export class Cline {
 									this.consecutiveAutoApprovedRequestsCount++
 								} else {
 									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to view directory ${path.basename(absolutePath)}/`,
+										`Cline 想要查看目录 ${path.basename(absolutePath)}/`,
 									)
 									this.removeLastPartialMessageIfExistsWithType("say", "tool")
 									const didApprove = await askApproval("tool", completeMessage)
@@ -2033,7 +2032,7 @@ export class Cline {
 								break
 							}
 						} catch (error) {
-							await handleError("listing files", error)
+							await handleError("正在列出文件", error)
 
 							break
 						}
@@ -2084,7 +2083,7 @@ export class Cline {
 									this.consecutiveAutoApprovedRequestsCount++
 								} else {
 									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to view source code definitions in ${path.basename(absolutePath)}/`,
+										`Cline 想要查看源代码定义，位于 ${path.basename(absolutePath)}/`,
 									)
 									this.removeLastPartialMessageIfExistsWithType("say", "tool")
 									const didApprove = await askApproval("tool", completeMessage)
@@ -2097,7 +2096,7 @@ export class Cline {
 								break
 							}
 						} catch (error) {
-							await handleError("parsing source code definitions", error)
+							await handleError("解析源代码定义时", error)
 
 							break
 						}
@@ -2160,7 +2159,7 @@ export class Cline {
 									this.consecutiveAutoApprovedRequestsCount++
 								} else {
 									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to search files in ${path.basename(absolutePath)}/`,
+										`Cline 想要搜索文件，位于 ${path.basename(absolutePath)}/`,
 									)
 									this.removeLastPartialMessageIfExistsWithType("say", "tool")
 									const didApprove = await askApproval("tool", completeMessage)
@@ -2173,7 +2172,7 @@ export class Cline {
 								break
 							}
 						} catch (error) {
-							await handleError("searching files", error)
+							await handleError("检索文件中", error)
 
 							break
 						}
@@ -2243,9 +2242,7 @@ export class Cline {
 										await this.say("browser_action_launch", url, undefined, false)
 										this.consecutiveAutoApprovedRequestsCount++
 									} else {
-										showNotificationForApprovalIfAutoApprovalEnabled(
-											`Cline wants to use a browser and launch ${url}`,
-										)
+										showNotificationForApprovalIfAutoApprovalEnabled(`Cline 想要使用浏览器并打开 ${url}`)
 										this.removeLastPartialMessageIfExistsWithType("say", "browser_action_launch")
 										const didApprove = await askApproval("browser_action_launch", url)
 										if (!didApprove) {
@@ -2319,20 +2316,16 @@ export class Cline {
 										await this.say("browser_action_result", JSON.stringify(browserActionResult))
 										pushToolResult(
 											formatResponse.toolResult(
-												`The browser action has been executed. The console logs and screenshot have been captured for your analysis.\n\nConsole logs:\n${
-													browserActionResult.logs || "(No new logs)"
-												}\n\n(REMEMBER: if you need to proceed to using non-\`browser_action\` tools or launch a new browser, you MUST first close this browser. For example, if after analyzing the logs and screenshot you need to edit a file, you must first close the browser before you can use the write_to_file tool.)`,
+												`浏览器操作已执行完成。控制台日志和截图已被捕获供分析使用。\n\n控制台日志：\n${
+													browserActionResult.logs || "(无新日志)"
+												}\n\n(注意：如果你需要使用非 \`browser_action\` 工具或启动新的浏览器，你必须先关闭当前浏览器。例如，如果你在分析日志和截图后需要编辑文件，你必须先关闭浏览器才能使用 write_to_file 工具。)`,
 												browserActionResult.screenshot ? [browserActionResult.screenshot] : [],
 											),
 										)
 
 										break
 									case "close":
-										pushToolResult(
-											formatResponse.toolResult(
-												`The browser has been closed. You may now proceed to using other tools.`,
-											),
-										)
+										pushToolResult(formatResponse.toolResult(`浏览器已关闭。你现在可以使用其他工具了。`))
 
 										break
 								}
@@ -2341,7 +2334,7 @@ export class Cline {
 							}
 						} catch (error) {
 							await this.browserSession.closeBrowser() // if any error occurs, the browser session is terminated
-							await handleError("executing browser action", error)
+							await handleError("执行浏览器操作时", error)
 
 							break
 						}
@@ -2401,9 +2394,7 @@ export class Cline {
 									this.consecutiveAutoApprovedRequestsCount++
 									didAutoApprove = true
 								} else {
-									showNotificationForApprovalIfAutoApprovalEnabled(
-										`Cline wants to execute a command: ${command}`,
-									)
+									showNotificationForApprovalIfAutoApprovalEnabled(`Cline 想要执行命令：${command}`)
 									// this.removeLastPartialMessageIfExistsWithType("say", "command")
 									const didApprove = await askApproval(
 										"command",
@@ -2420,9 +2411,8 @@ export class Cline {
 									// if the command was auto-approved, and it's long running we need to notify the user after some time has passed without proceeding
 									timeoutId = setTimeout(() => {
 										showSystemNotification({
-											subtitle: "Command is still running",
-											message:
-												"An auto-approved command has been running for 30s, and may need your attention.",
+											subtitle: "命令仍在运行",
+											message: "一个自动批准的命令已运行了 30 秒，可能需要您的关注。",
 										})
 									}, 30_000)
 								}
@@ -2445,7 +2435,7 @@ export class Cline {
 								break
 							}
 						} catch (error) {
-							await handleError("executing command", error)
+							await handleError("执行命令", error)
 
 							break
 						}
@@ -2497,10 +2487,7 @@ export class Cline {
 										parsedArguments = JSON.parse(mcp_arguments)
 									} catch (error) {
 										this.consecutiveMistakeCount++
-										await this.say(
-											"error",
-											`Cline tried to use ${tool_name} with an invalid JSON argument. Retrying...`,
-										)
+										await this.say("error", `Cline 尝试使用 ${tool_name} 时遇到无效的 JSON 参数。正在重试...`)
 										pushToolResult(
 											formatResponse.toolError(
 												formatResponse.invalidMcpToolArgumentError(server_name, tool_name),
@@ -2669,7 +2656,7 @@ export class Cline {
 
 								if (this.autoApprovalSettings.enabled && this.autoApprovalSettings.enableNotifications) {
 									showSystemNotification({
-										subtitle: "Cline has a question...",
+										subtitle: "Cline 有一个问题...",
 										message: question.replace(/\n/g, " "),
 									})
 								}
@@ -2722,9 +2709,9 @@ export class Cline {
 								if (this.didRespondToPlanAskBySwitchingMode) {
 									pushToolResult(
 										formatResponse.toolResult(
-											`[The user has switched to ACT MODE, so you may now proceed with the task.]` +
+											`[用户已切换到执行模式，你现在可以继续执行任务。]` +
 												(text
-													? `\n\nThe user also provided the following message when switching to ACT MODE:\n<user_message>\n${text}\n</user_message>`
+													? `\n\n用户在切换到执行模式时还提供了以下消息：\n<user_message>\n${text}\n</user_message>`
 													: ""),
 											images,
 										),
@@ -2830,7 +2817,7 @@ export class Cline {
 
 								if (this.autoApprovalSettings.enabled && this.autoApprovalSettings.enableNotifications) {
 									showSystemNotification({
-										subtitle: "Task Completed",
+										subtitle: "任务已完成",
 										message: result.replace(/\n/g, " "),
 									})
 								}
@@ -2887,12 +2874,12 @@ export class Cline {
 								}
 								toolResults.push({
 									type: "text",
-									text: `The user has provided feedback on the results. Consider their input to continue the task, and then attempt completion again.\n<feedback>\n${text}\n</feedback>`,
+									text: `用户已对结果提供了反馈。请考虑他们的输入来继续任务，然后再次尝试完成。\n<feedback>\n${text}\n</feedback>`,
 								})
 								toolResults.push(...formatResponse.imageBlocks(images))
 								this.userMessageContent.push({
 									type: "text",
-									text: `${toolDescription()} Result:`,
+									text: `${toolDescription()} 结果：`,
 								})
 								this.userMessageContent.push(...toolResults)
 
@@ -2946,21 +2933,21 @@ export class Cline {
 		isNewTask: boolean = false,
 	): Promise<boolean> {
 		if (this.abort) {
-			throw new Error("Cline instance aborted")
+			throw new Error("Cline 实例已终止")
 		}
 
 		if (this.consecutiveMistakeCount >= 3) {
 			if (this.autoApprovalSettings.enabled && this.autoApprovalSettings.enableNotifications) {
 				showSystemNotification({
-					subtitle: "Error",
-					message: "Cline is having trouble. Would you like to continue the task?",
+					subtitle: "错误",
+					message: "Cline 遇到问题。您想继续任务吗？",
 				})
 			}
 			const { response, text, images } = await this.ask(
 				"mistake_limit_reached",
 				this.api.getModel().id.includes("claude")
-					? `This may indicate a failure in his thought process or inability to use a tool properly, which can be mitigated with some user guidance (e.g. "Try breaking down the task into smaller steps").`
-					: "Cline uses complex prompts and iterative task execution that may be challenging for less capable models. For best results, it's recommended to use Claude 3.5 Sonnet for its advanced agentic coding capabilities.",
+					? `这可能表明其思维过程出现问题或无法正确使用工具，可以通过用户指导来缓解（例如："尝试将任务分解为更小的步骤"）。`
+					: "Cline 使用复杂的提示和迭代任务执行，这对于能力较弱的模型来说可能具有挑战性。为获得最佳效果，建议使用 Claude 3.7 Sonnet，因为它具有先进的代理编码能力。",
 			)
 			if (response === "messageResponse") {
 				userContent.push(
@@ -2982,13 +2969,13 @@ export class Cline {
 		) {
 			if (this.autoApprovalSettings.enableNotifications) {
 				showSystemNotification({
-					subtitle: "Max Requests Reached",
-					message: `Cline has auto-approved ${this.autoApprovalSettings.maxRequests.toString()} API requests.`,
+					subtitle: "已达到最大请求数",
+					message: `Cline 已自动批准 ${this.autoApprovalSettings.maxRequests.toString()} 个 API 请求。`,
 				})
 			}
 			await this.ask(
 				"auto_approval_max_req_reached",
-				`Cline has auto-approved ${this.autoApprovalSettings.maxRequests.toString()} API requests. Would you like to reset the count and proceed with the task?`,
+				`Cline 已自动批准 ${this.autoApprovalSettings.maxRequests.toString()} 个 API 请求。您想重置计数并继续任务吗？`,
 			)
 			// if we get past the promise it means the user approved and did not start a new task
 			this.consecutiveAutoApprovedRequestsCount = 0
@@ -3008,7 +2995,7 @@ export class Cline {
 		await this.say(
 			"api_req_started",
 			JSON.stringify({
-				request: userContent.map((block) => formatContentBlockToMarkdown(block)).join("\n\n") + "\n\nLoading...",
+				request: userContent.map((block) => formatContentBlockToMarkdown(block)).join("\n\n") + "\n\n加载中...",
 			}),
 		)
 
@@ -3020,8 +3007,8 @@ export class Cline {
 				this.checkpointTracker = await CheckpointTracker.create(this.taskId, this.providerRef.deref())
 				this.checkpointTrackerErrorMessage = undefined
 			} catch (error) {
-				const errorMessage = error instanceof Error ? error.message : "Unknown error"
-				console.error("Failed to initialize checkpoint tracker:", errorMessage)
+				const errorMessage = error instanceof Error ? error.message : "未知错误"
+				console.error("初始化检查点追踪器失败:", errorMessage)
 				this.checkpointTrackerErrorMessage = errorMessage // will be displayed right away since we saveClineMessages next which posts state to webview
 			}
 		}
@@ -3090,7 +3077,7 @@ export class Cline {
 					// lastMessage.ts = Date.now() DO NOT update ts since it is used as a key for virtuoso list
 					lastMessage.partial = false
 					// instead of streaming partialMessage events, we do a save and post like normal to persist to disk
-					console.log("updating partial message", lastMessage)
+					console.log("正在更新部分消息", lastMessage)
 					// await this.saveClineMessages()
 				}
 
@@ -3102,11 +3089,7 @@ export class Cline {
 							type: "text",
 							text:
 								assistantMessage +
-								`\n\n[${
-									cancelReason === "streaming_failed"
-										? "Response interrupted by API Error"
-										: "Response interrupted by user"
-								}]`,
+								`\n\n[${cancelReason === "streaming_failed" ? "响应被 API 错误中断" : "响应被用户中断"}]`,
 						},
 					],
 				})
@@ -3172,7 +3155,7 @@ export class Cline {
 					}
 
 					if (this.abort) {
-						console.log("aborting stream...")
+						console.log("正在终止数据流...")
 						if (!this.abandoned) {
 							// only need to gracefully abort if this instance isn't abandoned (sometimes openrouter stream hangs, in which case this would affect future instances of cline)
 							await abortStream("user_cancelled")
@@ -3182,7 +3165,7 @@ export class Cline {
 
 					if (this.didRejectTool) {
 						// userContent has a tool rejection, so interrupt the assistant's response to present the user's feedback
-						assistantMessage += "\n\n[Response interrupted by user feedback]"
+						assistantMessage += "\n\n[响应被用户中断]"
 						// this.userMessageContentReady = true // instead of setting this premptively, we allow the present iterator to finish and set userMessageContentReady when its ready
 						break
 					}
@@ -3190,8 +3173,7 @@ export class Cline {
 					// PREV: we need to let the request finish for openrouter to get generation details
 					// UPDATE: it's better UX to interrupt the request at the cost of the api cost not being retrieved
 					if (this.didAlreadyUseTool) {
-						assistantMessage +=
-							"\n\n[Response interrupted by a tool use result. Only one tool may be used at a time and should be placed at the end of the message.]"
+						assistantMessage += "\n\n[响应被工具使用结果中断。每次只能使用一个工具，且应该放在消息的末尾。]"
 						break
 					}
 				}
@@ -3214,7 +3196,7 @@ export class Cline {
 
 			// need to call here in case the stream was aborted
 			if (this.abort) {
-				throw new Error("Cline instance aborted")
+				throw new Error("Cline 实例已中止")
 			}
 
 			this.didCompleteReadingStream = true
@@ -3269,16 +3251,13 @@ export class Cline {
 				didEndLoop = recDidEndLoop
 			} else {
 				// if there's no assistant_responses, that means we got no text or tool_use content blocks from API which we should assume is an error
-				await this.say(
-					"error",
-					"Unexpected API Response: The language model did not provide any assistant messages. This may indicate an issue with the API or the model's output.",
-				)
+				await this.say("error", "意外的 API 响应：语言模型没有提供任何助手消息。这可能表明 API 或模型输出存在问题。")
 				await this.addToApiConversationHistory({
 					role: "assistant",
 					content: [
 						{
 							type: "text",
-							text: "Failure: I did not provide a response.",
+							text: "失败：我没有提供响应。",
 						},
 					],
 				})
@@ -3323,7 +3302,7 @@ export class Cline {
 		let details = ""
 
 		// It could be useful for cline to know if the user went from one or no file to another between messages, so we always include this context
-		details += "\n\n# VSCode Visible Files"
+		details += "\n\n# VSCode 可见文件"
 		const visibleFilePaths = vscode.window.visibleTextEditors
 			?.map((editor) => editor.document?.uri?.fsPath)
 			.filter(Boolean)
@@ -3338,10 +3317,10 @@ export class Cline {
 		if (allowedVisibleFiles) {
 			details += `\n${allowedVisibleFiles}`
 		} else {
-			details += "\n(No visible files)"
+			details += "\n(没有可见文件)"
 		}
 
-		details += "\n\n# VSCode Open Tabs"
+		details += "\n\n# VSCode 打开的标签页"
 		const openTabPaths = vscode.window.tabGroups.all
 			.flatMap((group) => group.tabs)
 			.map((tab) => (tab.input as vscode.TabInputText)?.uri?.fsPath)
@@ -3357,7 +3336,7 @@ export class Cline {
 		if (allowedOpenTabs) {
 			details += `\n${allowedOpenTabs}`
 		} else {
-			details += "\n(No open tabs)"
+			details += "\n(没有打开的标签页)"
 		}
 
 		const busyTerminals = this.terminalManager.getTerminals(true)
@@ -3401,15 +3380,15 @@ export class Cline {
 		// waiting for updated diagnostics lets terminal output be the most up-to-date possible
 		let terminalDetails = ""
 		if (busyTerminals.length > 0) {
-			// terminals are cool, let's retrieve their output
-			terminalDetails += "\n\n# Actively Running Terminals"
+			// 终端已冷却，让我们获取它们的输出
+			terminalDetails += "\n\n# 正在运行的终端"
 			for (const busyTerminal of busyTerminals) {
-				terminalDetails += `\n## Original command: \`${busyTerminal.lastCommand}\``
+				terminalDetails += `\n## 原始命令: \`${busyTerminal.lastCommand}\``
 				const newOutput = this.terminalManager.getUnretrievedOutput(busyTerminal.id)
 				if (newOutput) {
-					terminalDetails += `\n### New Output\n${newOutput}`
+					terminalDetails += `\n### 新输出\n${newOutput}`
 				} else {
-					// details += `\n(Still running, no new output)` // don't want to show this right after running the command
+					// details += `\n(仍在运行，没有新输出)` // 在运行命令后不想立即显示这个
 				}
 			}
 		}
@@ -3423,12 +3402,12 @@ export class Cline {
 				}
 			}
 			if (inactiveTerminalOutputs.size > 0) {
-				terminalDetails += "\n\n# Inactive Terminals"
+				terminalDetails += "\n\n# 非活动终端"
 				for (const [terminalId, newOutput] of inactiveTerminalOutputs) {
 					const inactiveTerminal = inactiveTerminals.find((t) => t.id === terminalId)
 					if (inactiveTerminal) {
 						terminalDetails += `\n## ${inactiveTerminal.lastCommand}`
-						terminalDetails += `\n### New Output\n${newOutput}`
+						terminalDetails += `\n### 新输出\n${newOutput}`
 					}
 				}
 			}
@@ -3459,14 +3438,14 @@ export class Cline {
 		const timeZone = formatter.resolvedOptions().timeZone
 		const timeZoneOffset = -now.getTimezoneOffset() / 60 // Convert to hours and invert sign to match conventional notation
 		const timeZoneOffsetStr = `${timeZoneOffset >= 0 ? "+" : ""}${timeZoneOffset}:00`
-		details += `\n\n# Current Time\n${formatter.format(now)} (${timeZone}, UTC${timeZoneOffsetStr})`
+		details += `\n\n# 当前时间\n${formatter.format(now)} (${timeZone}, UTC${timeZoneOffsetStr})`
 
 		if (includeFileDetails) {
-			details += `\n\n# Current Working Directory (${cwd.toPosix()}) Files\n`
+			details += `\n\n# 当前工作目录 (${cwd.toPosix()}) 文件\n`
 			const isDesktop = arePathsEqual(cwd, path.join(os.homedir(), "Desktop"))
 			if (isDesktop) {
-				// don't want to immediately access desktop since it would show permission popup
-				details += "(Desktop files not shown automatically. Use list_files to explore if needed.)"
+				// 不想立即访问桌面，因为会显示权限弹窗
+				details += "(桌面文件不会自动显示。如需浏览请使用 list_files。)"
 			} else {
 				const [files, didHitLimit] = await listFiles(cwd, true, 200)
 				const result = formatResponse.formatFilesList(cwd, files, didHitLimit, this.clineIgnoreController)
@@ -3474,15 +3453,15 @@ export class Cline {
 			}
 		}
 
-		details += "\n\n# Current Mode"
+		details += "\n\n# 当前模式"
 		if (this.chatSettings.mode === "plan") {
-			details += "\nPLAN MODE"
+			details += "\n规划模式"
 			details +=
-				"\nIn this mode you should focus on information gathering, asking questions, and architecting a solution. Once you have a plan, use the plan_mode_response tool to engage in a conversational back and forth with the user. Do not use the plan_mode_response tool until you've gathered all the information you need e.g. with read_file or ask_followup_question."
+				"\n在此模式下，你应该专注于信息收集、提问和制定解决方案。一旦你有了计划，使用 plan_mode_response 工具与用户进行来回对话。在收集到所需的所有信息之前（例如使用 read_file 或 ask_followup_question），不要使用 plan_mode_response 工具。"
 			details +=
-				'\n(Remember: If it seems the user wants you to use tools only available in Act Mode, you should ask the user to "toggle to Act mode" (use those words) - they will have to manually do this themselves with the Plan/Act toggle button below. You do not have the ability to switch to Act Mode yourself, and must wait for the user to do it themselves once they are satisfied with the plan.)'
+				'\n(请记住：如果用户似乎想使用仅在执行模式下可用的工具，你应该请用户"切换到执行模式"（使用这些词） - 他们需要自己通过下方的规划/执行切换按钮手动完成。你无法自行切换到执行模式，必须等待用户在对计划满意后自行切换。)'
 		} else {
-			details += "\nACT MODE"
+			details += "\n执行模式"
 		}
 
 		return `<environment_details>\n${details.trim()}\n</environment_details>`
