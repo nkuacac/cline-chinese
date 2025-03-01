@@ -1,39 +1,74 @@
 # Cline-Chinese (Cline中文汉化版) 🌏
 
-[![Version](https://img.shields.io/visual-studio-marketplace/v/HybridTalentComputing.cline-chinese)](https://marketplace.visualstudio.com/items?itemName=HybridTalentComputing.cline-chinese)
-[![Downloads](https://img.shields.io/visual-studio-marketplace/d/HybridTalentComputing.cline-chinese)](https://marketplace.visualstudio.com/items?itemName=HybridTalentComputing.cline-chinese)
-[![Rating](https://img.shields.io/visual-studio-marketplace/r/HybridTalentComputing.cline-chinese)](https://marketplace.visualstudio.com/items?itemName=HybridTalentComputing.cline-chinese)
+> 🎉 截止到2025.03.01，Cline Chinese在VS Code插件市场的下载量突破14k啦！且仍在以一天1k的速度增加，感谢大家的支持！
+
+<p align="center">
+
+[![Version](https://img.shields.io/visual-studio-marketplace/v/HybridTalentComputing.cline-chinese)](https://marketplace.visualstudio.com/items?itemName=HybridTalentComputing.cline-chinese) [![Downloads](https://img.shields.io/visual-studio-marketplace/d/HybridTalentComputing.cline-chinese)](https://marketplace.visualstudio.com/items?itemName=HybridTalentComputing.cline-chinese) [![Rating](https://img.shields.io/visual-studio-marketplace/r/HybridTalentComputing.cline-chinese)](https://marketplace.visualstudio.com/items?itemName=HybridTalentComputing.cline-chinese)
+
+</p>
+
 ## 项目地址
 https://github.com/HybridTalentComputing/cline-chinese
 欢迎大家star，fork，提出issue，贡献代码，一起完善这个项目。
+
+## 功能展示
+
+<video src="docs/ClineChinese.mov" controls title="Cline中文汉化版演示视频"></video>
+
+> 演示视频使用 DeepSeek-R1-Distill-Qwen-14B 模型，展示了 Cline 中文汉化版的主要功能和使用效果，视频没有加速，推理速度快到飞起。
+
+## 安装使用
+Cline-Chinese已发布到VSCode插件市场，欢迎感兴趣的小伙伴们下载体验。
 
 ## 简介
 
 这个项目是基于 [Cline](https://github.com/cline/cline) 的汉化版本。旨在优化由于英文 prompt 导致 Cline 在中文输入下+国产大模型（如：deepseek）表现不佳的问题, 并提供更符合中文用户习惯的UI界面和功能。目前已测试[DeepSeek-R1/DeepSeek-V3](https://github.com/deepseek-ai/DeepSeek-R1)工作良好。
 
-日常使用cline等编程助手时发现使用某些模型推理速度较慢（如deepseek-R1, Claude-3.5-Sonnet），这个项目优先尝试在中文输入下，对轻量化LLM进行实验（如Deepseek-R1-Distill-Qwen-7B/14B），优化中文prompt, 以提升推理速度，大大减少等待的时间，目前仍在尝试中，如果有小伙伴已经试验出一套优质的中文prompt，欢迎提交PR或issue。
+日常使用cline等编程助手时发现使用某些模型推理速度较慢（如deepseek-R1, Claude-3.5-Sonnet），这个项目优先尝试在中文输入下，对轻量化LLM进行实验（如Deepseek-R1-Distill-Qwen-7B/14B），优化中文prompt, 以提升推理速度，大大减少等待的时间。
+
+> **🚀 重要提示：经过测试，3.4.10版本下，DeepSeek-R1-Distill-Qwen-14B 模型工作良好，推理速度极快，强烈推荐尝试！**
 
 ## 背景
 
-本人是一名AI爱好者+从业者，在使用Cline时，发现Cline的UI界面和提示词均为英文，使用中文输入时，有时会出现奇奇怪怪的输出，影响体验。因此，决定自己动手，汉化Cline。
+本人是一名AI从业者+爱好者，在使用Cline时，发现Cline的UI界面和提示词均为英文，使用中文输入时，有时会出现奇奇怪怪的输出，影响体验。因此，决定自己动手，汉化Cline。
 另外，秉着学习的态度，未来将着手修改Cline的核心代码，增加新的功能，以提升体验。
 
 ## 版本说明
 
-- 首个版本基于Cline 3.2.13 版本进行汉化，没有对cline核心代码进行任何修改，以保证原滋原味的cline体验。
-- 未来cline主仓更新后，会及时同步到本项目中。且版本号与Cline对于版本号保持一致。
-- 本着学习的态度，这个仓库会长期维护，并持续更新。
+### 2024.03.01（ver.3.4.10）
 
-## 安装使用
+1. 合入Cline最新更新（2024.02.28,新增MCP市场），详情请查看CHANGELOG.md
+2. 进一步优化汉化质量
+3. 已知问题修复
 
-Cline-Chinese已发布到VSCode插件市场，欢迎感兴趣的小伙伴们下载体验。
 
-## 反馈与贡献
+## 赞赏支持
 
-如果您在使用过程中遇到任何问题，或有任何建议，欢迎：
+如果您觉得这个项目对您有帮助，欢迎赞赏支持，您的支持是我持续开发的动力 ☕
 
-- 提交 [Issue](https://github.com/HybridTalentComputing/cline-chinese/issues)
-- 提交 [Pull Request](https://github.com/HybridTalentComputing/cline-chinese/pulls)
+<div align="center" style="display: flex; justify-content: center; gap: 20px;">
+
+<a href="docs/QRCode/AliPay.jpg">
+  <img src="https://img.shields.io/badge/支付宝赞赏-1677FF?style=for-the-badge&logo=alipay&logoColor=white" alt="支付宝赞赏" width="200" />
+</a>
+
+<a href="docs/QRCode/WechatPay.jpg">
+  <img src="https://img.shields.io/badge/微信赞赏-07C160?style=for-the-badge&logo=wechat&logoColor=white" alt="微信赞赏" width="180" />
+</a>
+
+</div>
+
+## 欢迎关注我的自媒体账号
+
+欢迎关注我的自媒体账号，获取更多AI开发和技术分享：
+
+- 知乎：[Leo聊AI](https://www.zhihu.com/people/HTCMAX)
+- B站：[Leo的AI世界](https://space.bilibili.com/23409884?spm_id_from=333.1007.0.0)
+- 头条号：Leo的AI世界
+- 小红书：Leo的AI世界
+- 公众号：Leo的AI世界
+
 
 ## 免责声明
 
