@@ -155,7 +155,7 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 						}}>
 						<VSCodeTextField
 							style={{ width: "100%" }}
-							placeholder="Fuzzy search history..."
+							placeholder="模糊搜索历史记录..."
 							value={searchQuery}
 							onInput={(e) => {
 								const newValue = (e.target as HTMLInputElement)?.value
@@ -176,7 +176,7 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 							{searchQuery && (
 								<div
 									className="input-icon-button codicon codicon-close"
-									aria-label="Clear search"
+									aria-label="清除搜索"
 									onClick={() => setSearchQuery("")}
 									slot="end"
 									style={{
@@ -192,12 +192,12 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 							style={{ display: "flex", flexWrap: "wrap" }}
 							value={sortOption}
 							onChange={(e) => setSortOption((e.target as HTMLInputElement).value as SortOption)}>
-							<VSCodeRadio value="newest">Newest</VSCodeRadio>
-							<VSCodeRadio value="oldest">Oldest</VSCodeRadio>
-							<VSCodeRadio value="mostExpensive">Most Expensive</VSCodeRadio>
-							<VSCodeRadio value="mostTokens">Most Tokens</VSCodeRadio>
+							<VSCodeRadio value="newest">最新</VSCodeRadio>
+							<VSCodeRadio value="oldest">最早</VSCodeRadio>
+							<VSCodeRadio value="mostExpensive">最贵</VSCodeRadio>
+							<VSCodeRadio value="mostTokens">最多令牌</VSCodeRadio>
 							<VSCodeRadio value="mostRelevant" disabled={!searchQuery} style={{ opacity: searchQuery ? 1 : 0.5 }}>
-								Most Relevant
+								最相关
 							</VSCodeRadio>
 						</VSCodeRadioGroup>
 					</div>

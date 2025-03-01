@@ -69,7 +69,7 @@ const HistoryPreview = ({ showHistoryView }: HistoryPreviewProps) => {
 						fontSize: "0.85em",
 						textTransform: "uppercase",
 					}}>
-					Recent Tasks
+					最近任务
 				</span>
 			</div>
 
@@ -150,7 +150,7 @@ const HistoryPreview = ({ showHistoryView }: HistoryPreviewProps) => {
 								fontSize: "var(--vscode-font-size)",
 								color: "var(--vscode-descriptionForeground)",
 							}}>
-							View all history
+							查看所有历史记录
 						</div>
 					</VSCodeButton>
 				</div>

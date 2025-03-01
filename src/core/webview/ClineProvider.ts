@@ -105,12 +105,12 @@ export const GlobalFileNames = {
 }
 
 export class ClineProvider implements vscode.WebviewViewProvider {
-	public static readonly sideBarId = "cline.SidebarProvider" // used in package.json as the view's id. This value cannot be changed due to how vscode caches views based on their id, and updating the id would break existing instances of the extension.
-	public static readonly tabPanelId = "cline.TabPanelProvider"
+	public static readonly sideBarId = "clineChinese.SidebarProvider" // used in package.json as the view's id. This value cannot be changed due to how vscode caches views based on their id, and updating the id would break existing instances of the extension.
+	public static readonly tabPanelId = "clineChinese.TabPanelProvider"
 	private static activeInstances: Set<ClineProvider> = new Set()
 	private disposables: vscode.Disposable[] = []
 	private view?: vscode.WebviewView | vscode.WebviewPanel
-	private cline?: Cline
+	private clineChinese?: Cline
 	workspaceTracker?: WorkspaceTracker
 	mcpHub?: McpHub
 	private authManager: FirebaseAuthManager
@@ -252,7 +252,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 						text: JSON.stringify(await getTheme()),
 					})
 				}
-				if (e && e.affectsConfiguration("cline.mcpMarketplace.enabled")) {
+				if (e && e.affectsConfiguration("clineChinese.mcpMarketplace.enabled")) {
 					// Update state when marketplace tab setting changes
 					await this.postStateToWebview()
 				}
@@ -271,7 +271,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 		await this.clearTask() // ensures that an existing task doesn't exist before starting a new one, although this shouldn't be possible since user must clear task before starting a new one
 		const { apiConfiguration, customInstructions, autoApprovalSettings, browserSettings, chatSettings } =
 			await this.getState()
-		this.cline = new Cline(
+		this.clineChinese = new Cline(
 			this,
 			apiConfiguration,
 			autoApprovalSettings,
@@ -297,7 +297,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 		await this.clearTask()
 		const { apiConfiguration, customInstructions, autoApprovalSettings, browserSettings, chatSettings } =
 			await this.getState()
-		this.cline = new Cline(
+		this.clineChinese = new Cline(
 			this,
 			apiConfiguration,
 			autoApprovalSettings,
@@ -557,8 +557,8 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 							await this.updateGlobalState("qwenApiLine", qwenApiLine)
 							await this.updateGlobalState("requestyModelId", requestyModelId)
 							await this.updateGlobalState("togetherModelId", togetherModelId)
-							if (this.cline) {
-								this.cline.api = buildApiHandler(message.apiConfiguration)
+							if (this.clineChinese) {
+								this.clineChinese.api = buildApiHandler(message.apiConfiguration)
 							}
 						}
 						await this.postStateToWebview()
@@ -569,8 +569,8 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 					case "autoApprovalSettings":
 						if (message.autoApprovalSettings) {
 							await this.updateGlobalState("autoApprovalSettings", message.autoApprovalSettings)
-							if (this.cline) {
-								this.cline.autoApprovalSettings = message.autoApprovalSettings
+							if (this.clineChinese) {
+								this.clineChinese.autoApprovalSettings = message.autoApprovalSettings
 							}
 							await this.postStateToWebview()
 						}
@@ -578,8 +578,8 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 					case "browserSettings":
 						if (message.browserSettings) {
 							await this.updateGlobalState("browserSettings", message.browserSettings)
-							if (this.cline) {
-								this.cline.updateBrowserSettings(message.browserSettings)
+							if (this.clineChinese) {
+								this.clineChinese.updateBrowserSettings(message.browserSettings)
 							}
 							await this.postStateToWebview()
 						}
@@ -590,12 +590,12 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 						}
 						break
 					// case "relaunchChromeDebugMode":
-					// 	if (this.cline) {
-					// 		this.cline.browserSession.relaunchChromeDebugMode()
+					// 	if (this.clineChinese) {
+					// 		this.clineChinese.browserSession.relaunchChromeDebugMode()
 					// 	}
 					// 	break
 					case "askResponse":
-						this.cline?.handleWebviewAskResponse(message.askResponse!, message.text, message.images)
+						this.clineChinese?.handleWebviewAskResponse(message.askResponse!, message.text, message.images)
 						break
 					case "clearTask":
 						// newTask will start a new task with a given task text, while clear task resets the current session and allows for a new task to be started
@@ -614,7 +614,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 						})
 						break
 					case "exportCurrentTask":
-						const currentTaskId = this.cline?.taskId
+						const currentTaskId = this.clineChinese?.taskId
 						if (currentTaskId) {
 							this.exportTaskWithId(currentTaskId)
 						}
@@ -671,7 +671,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 						break
 					case "checkpointDiff": {
 						if (message.number) {
-							await this.cline?.presentMultifileDiff(message.number, false)
+							await this.clineChinese?.presentMultifileDiff(message.number, false)
 						}
 						break
 					}
@@ -680,19 +680,19 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 						// cancel task waits for any open editor to be reverted and starts a new cline instance
 						if (message.number) {
 							// wait for messages to be loaded
-							await pWaitFor(() => this.cline?.isInitialized === true, {
+							await pWaitFor(() => this.clineChinese?.isInitialized === true, {
 								timeout: 3_000,
 							}).catch(() => {
 								console.error("Failed to init new cline instance")
 							})
 							// NOTE: cancelTask awaits abortTask, which awaits diffViewProvider.revertChanges, which reverts any edited files, allowing us to reset to a checkpoint rather than running into a state where the revertChanges function is called alongside or after the checkpoint reset
-							await this.cline?.restoreCheckpoint(message.number, message.text! as ClineCheckpointRestore)
+							await this.clineChinese?.restoreCheckpoint(message.number, message.text! as ClineCheckpointRestore)
 						}
 						break
 					}
 					case "taskCompletionViewChanges": {
 						if (message.number) {
-							await this.cline?.presentMultifileDiff(message.number, true)
+							await this.clineChinese?.presentMultifileDiff(message.number, true)
 						}
 						break
 					}
@@ -717,7 +717,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 						const uriScheme = vscode.env.uriScheme
 
 						const authUrl = vscode.Uri.parse(
-							`https://app.cline.bot/auth?state=${encodeURIComponent(nonce)}&callback_url=${encodeURIComponent(`${uriScheme || "vscode"}://cline/auth`)}`,
+							`https://app.clineChinese.bot/auth?state=${encodeURIComponent(nonce)}&callback_url=${encodeURIComponent(`${uriScheme || "vscode"}://cline/auth`)}`,
 						)
 						vscode.env.openExternal(authUrl)
 						break
@@ -751,7 +751,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 
 							// 2. Enable MCP settings if disabled
 							// Enable MCP mode if disabled
-							const mcpConfig = vscode.workspace.getConfiguration("cline.mcp")
+							const mcpConfig = vscode.workspace.getConfiguration("clineChinese.mcp")
 							if (mcpConfig.get<string>("mode") !== "full") {
 								await mcpConfig.update("mode", "full", true)
 							}
@@ -767,7 +767,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 					}
 					// case "openMcpMarketplaceServerDetails": {
 					// 	if (message.text) {
-					// 		const response = await fetch(`https://api.cline.bot/v1/mcp/marketplace/item?mcpId=${message.mcpId}`)
+					// 		const response = await fetch(`https://api.clineChinese.bot/v1/mcp/marketplace/item?mcpId=${message.mcpId}`)
 					// 		const details: McpDownloadResponse = await response.json()
 
 					// 		if (details.readmeContent) {
@@ -956,19 +956,19 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 					break
 			}
 
-			if (this.cline) {
+			if (this.clineChinese) {
 				const { apiConfiguration: updatedApiConfiguration } = await this.getState()
-				this.cline.api = buildApiHandler(updatedApiConfiguration)
+				this.clineChinese.api = buildApiHandler(updatedApiConfiguration)
 			}
 		}
 
 		await this.updateGlobalState("chatSettings", chatSettings)
 		await this.postStateToWebview()
 		// console.log("chatSettings", message.chatSettings)
-		if (this.cline) {
-			this.cline.updateChatSettings(chatSettings)
-			if (this.cline.isAwaitingPlanResponse && didSwitchToActMode) {
-				this.cline.didRespondToPlanAskBySwitchingMode = true
+		if (this.clineChinese) {
+			this.clineChinese.updateChatSettings(chatSettings)
+			if (this.clineChinese.isAwaitingPlanResponse && didSwitchToActMode) {
+				this.clineChinese.didRespondToPlanAskBySwitchingMode = true
 				// this is necessary for the webview to update accordingly, but Cline instance will not send text back as feedback message
 				await this.postMessageToWebview({
 					type: "invoke",
@@ -996,7 +996,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 		// Currently ignoring errors to this endpoint, but after accounts we'll remove this anyways
 		try {
 			const response = await axios.post(
-				"https://app.cline.bot/api/mailing-list",
+				"https://app.clineChinese.bot/api/mailing-list",
 				{
 					email: email,
 				},
@@ -1013,28 +1013,28 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 	}
 
 	async cancelTask() {
-		if (this.cline) {
-			const { historyItem } = await this.getTaskWithId(this.cline.taskId)
+		if (this.clineChinese) {
+			const { historyItem } = await this.getTaskWithId(this.clineChinese.taskId)
 			try {
-				await this.cline.abortTask()
+				await this.clineChinese.abortTask()
 			} catch (error) {
 				console.error("Failed to abort task", error)
 			}
 			await pWaitFor(
 				() =>
-					this.cline === undefined ||
-					this.cline.isStreaming === false ||
-					this.cline.didFinishAbortingStream ||
-					this.cline.isWaitingForFirstChunk, // if only first chunk is processed, then there's no need to wait for graceful abort (closes edits, browser, etc)
+					this.clineChinese === undefined ||
+					this.clineChinese.isStreaming === false ||
+					this.clineChinese.didFinishAbortingStream ||
+					this.clineChinese.isWaitingForFirstChunk, // if only first chunk is processed, then there's no need to wait for graceful abort (closes edits, browser, etc)
 				{
 					timeout: 3_000,
 				},
 			).catch(() => {
 				console.error("Failed to abort task")
 			})
-			if (this.cline) {
+			if (this.clineChinese) {
 				// 'abandoned' will prevent this cline instance from affecting future cline instance gui. this may happen if its hanging on a streaming request
-				this.cline.abandoned = true
+				this.clineChinese.abandoned = true
 			}
 			await this.initClineWithHistoryItem(historyItem) // clears task again, so we need to abortTask manually above
 			// await this.postStateToWebview() // new Cline instance will post state when it's ready. having this here sent an empty messages array to webview leading to virtuoso having to reload the entire list
@@ -1044,8 +1044,8 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 	async updateCustomInstructions(instructions?: string) {
 		// User may be clearing the field
 		await this.updateGlobalState("customInstructions", instructions || undefined)
-		if (this.cline) {
-			this.cline.customInstructions = instructions || undefined
+		if (this.clineChinese) {
+			this.clineChinese.customInstructions = instructions || undefined
 		}
 		await this.postStateToWebview()
 	}
@@ -1168,7 +1168,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 
 	private async fetchMcpMarketplaceFromApi(silent: boolean = false): Promise<McpMarketplaceCatalog | undefined> {
 		try {
-			const response = await axios.get("https://api.cline.bot/v1/mcp/marketplace", {
+			const response = await axios.get("https://api.clineChinese.bot/v1/mcp/marketplace", {
 				headers: {
 					"Content-Type": "application/json",
 				},
@@ -1260,7 +1260,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 
 			// Fetch server details from marketplace
 			const response = await axios.post<McpDownloadResponse>(
-				"https://api.cline.bot/v1/mcp/download",
+				"https://api.clineChinese.bot/v1/mcp/download",
 				{ mcpId },
 				{
 					headers: { "Content-Type": "application/json" },
@@ -1378,8 +1378,8 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 		await this.updateGlobalState("apiProvider", openrouter)
 		await this.storeSecret("openRouterApiKey", apiKey)
 		await this.postStateToWebview()
-		if (this.cline) {
-			this.cline.api = buildApiHandler({
+		if (this.clineChinese) {
+			this.clineChinese.api = buildApiHandler({
 				apiProvider: openrouter,
 				openRouterApiKey: apiKey,
 			})
@@ -1558,7 +1558,7 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 	}
 
 	async showTaskWithId(id: string) {
-		if (id !== this.cline?.taskId) {
+		if (id !== this.clineChinese?.taskId) {
 			// non-current task
 			const { historyItem } = await this.getTaskWithId(id)
 			await this.initClineWithHistoryItem(historyItem) // clears existing task
@@ -1575,7 +1575,7 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 	}
 
 	async deleteTaskWithId(id: string) {
-		if (id === this.cline?.taskId) {
+		if (id === this.clineChinese?.taskId) {
 			await this.clearTask()
 		}
 
@@ -1646,9 +1646,9 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 			apiConfiguration,
 			customInstructions,
 			uriScheme: vscode.env.uriScheme,
-			currentTaskItem: this.cline?.taskId ? (taskHistory || []).find((item) => item.id === this.cline?.taskId) : undefined,
-			checkpointTrackerErrorMessage: this.cline?.checkpointTrackerErrorMessage,
-			clineMessages: this.cline?.clineMessages || [],
+			currentTaskItem: this.clineChinese?.taskId ? (taskHistory || []).find((item) => item.id === this.clineChinese?.taskId) : undefined,
+			checkpointTrackerErrorMessage: this.clineChinese?.checkpointTrackerErrorMessage,
+			clineMessages: this.clineChinese?.clineMessages || [],
 			taskHistory: (taskHistory || []).filter((item) => item.ts && item.task).sort((a, b) => b.ts - a.ts),
 			shouldShowAnnouncement: lastShownAnnouncementId !== this.latestAnnouncementId,
 			platform: process.platform as Platform,
@@ -1663,8 +1663,8 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 	}
 
 	async clearTask() {
-		this.cline?.abortTask()
-		this.cline = undefined // removes reference to it, so once promises end it will be garbage collected
+		this.clineChinese?.abortTask()
+		this.clineChinese = undefined // removes reference to it, so once promises end it will be garbage collected
 	}
 
 	// Caching mechanism to keep track of webview messages + API conversation history per provider instance
@@ -1835,7 +1835,7 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 		}
 
 		const o3MiniReasoningEffort = vscode.workspace
-			.getConfiguration("cline.modelSettings.o3Mini")
+			.getConfiguration("clineChinese.modelSettings.o3Mini")
 			.get("reasoningEffort", "medium")
 
 		const mcpMarketplaceEnabled = vscode.workspace.getConfiguration("cline").get<boolean>("mcpMarketplace.enabled", true)
@@ -1982,9 +1982,9 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 		for (const key of secretKeys) {
 			await this.storeSecret(key, undefined)
 		}
-		if (this.cline) {
-			this.cline.abortTask()
-			this.cline = undefined
+		if (this.clineChinese) {
+			this.clineChinese.abortTask()
+			this.clineChinese = undefined
 		}
 		vscode.window.showInformationMessage("State reset")
 		await this.postStateToWebview()

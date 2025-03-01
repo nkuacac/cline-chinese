@@ -714,7 +714,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 	useEvent("wheel", handleWheel, window, { passive: true }) // passive improves scrolling performance
 
 	const placeholderText = useMemo(() => {
-		const text = task ? "Type a message..." : "Type your task here..."
+		const text = task ? "输入消息..." : "在此输入您的任务..."
 		return text
 	}, [task])
 
@@ -794,13 +794,11 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 
 					{showAnnouncement && <Announcement version={version} hideAnnouncement={hideAnnouncement} />}
 					<div style={{ padding: "0 20px", flexShrink: 0 }}>
-						<h2>What can I do for you?</h2>
+						<h2>我能为您做些什么？</h2>
 						<p>
-							Thanks to Claude 3.7 Sonnet's agentic coding capabilities, I can handle complex software development
-							tasks step-by-step. With tools that let me create & edit files, explore complex projects, use the
-							browser, and execute terminal commands (after you grant permission), I can assist you in ways that go
-							beyond code completion or tech support. I can even use MCP to create new tools and extend my own
-							capabilities.
+							得益于 Claude 3.7 Sonnet 的智能编程能力，我可以逐步处理复杂的软件开发任务。通过创建和编辑文件、
+							探索复杂项目、使用浏览器以及执行终端命令（在您授权后）等工具，我可以提供超越代码补全和技术支持的
+							帮助。我甚至可以使用 MCP 创建新工具并扩展自身的功能。
 						</p>
 					</div>
 					{taskHistory.length > 0 && <HistoryPreview showHistoryView={showHistoryView} />}

@@ -49,86 +49,86 @@
 		"viewsContainers": {
 			"activitybar": [
 				{
-					"id": "cline-ActivityBar",
+					"id": "cline-chinese-ActivityBar",
 					"title": "Cline Chinese",
 					"icon": "assets/icons/icon.svg"
 				}
 			]
 		},
 		"views": {
-			"cline-ActivityBar": [
+			"cline-chinese-ActivityBar": [
 				{
 					"type": "webview",
-					"id": "cline.SidebarProvider",
+					"id": "clineChinese.SidebarProvider",
 					"name": ""
 				}
 			]
 		},
 		"commands": [
 			{
-				"command": "cline.plusButtonClicked",
-				"title": "New Task",
+				"command": "clineChinese.plusButtonClicked",
+				"title": "新建任务",
 				"icon": "$(add)"
 			},
 			{
-				"command": "cline.mcpButtonClicked",
-				"title": "MCP Servers",
+				"command": "clineChinese.mcpButtonClicked",
+				"title": "MCP 服务器",
 				"icon": "$(extensions)"
 			},
 			{
-				"command": "cline.historyButtonClicked",
-				"title": "History",
+				"command": "clineChinese.historyButtonClicked",
+				"title": "历史记录",
 				"icon": "$(history)"
 			},
 			{
-				"command": "cline.popoutButtonClicked",
-				"title": "Open in Editor",
+				"command": "clineChinese.popoutButtonClicked",
+				"title": "在编辑器中打开",
 				"icon": "$(link-external)"
 			},
 			{
-				"command": "cline.settingsButtonClicked",
-				"title": "Settings",
+				"command": "clineChinese.settingsButtonClicked",
+				"title": "设置",
 				"icon": "$(settings-gear)"
 			},
 			{
-				"command": "cline.openInNewTab",
-				"title": "Open In New Tab",
+				"command": "clineChinese.openInNewTab",
+				"title": "在新标签页中打开",
 				"category": "Cline Chinese"
 			}
 		],
 		"menus": {
 			"view/title": [
 				{
-					"command": "cline.plusButtonClicked",
+					"command": "clineChinese.plusButtonClicked",
 					"group": "navigation@1",
-					"when": "view == cline.SidebarProvider"
+					"when": "view == clineChinese.SidebarProvider"
 				},
 				{
-					"command": "cline.mcpButtonClicked",
+					"command": "clineChinese.mcpButtonClicked",
 					"group": "navigation@2",
-					"when": "view == cline.SidebarProvider"
+					"when": "view == clineChinese.SidebarProvider"
 				},
 				{
-					"command": "cline.historyButtonClicked",
+					"command": "clineChinese.historyButtonClicked",
 					"group": "navigation@3",
-					"when": "view == cline.SidebarProvider"
+					"when": "view == clineChinese.SidebarProvider"
 				},
 				{
-					"command": "cline.popoutButtonClicked",
+					"command": "clineChinese.popoutButtonClicked",
 					"group": "navigation@4",
-					"when": "view == cline.SidebarProvider"
+					"when": "view == clineChinese.SidebarProvider"
 				},
 				{
-					"command": "cline.settingsButtonClicked",
+					"command": "clineChinese.settingsButtonClicked",
 					"group": "navigation@5",
-					"when": "view == cline.SidebarProvider"
+					"when": "view == clineChinese.SidebarProvider"
 				}
 			]
 		},
 		"configuration": {
 			"title": "Cline Chinese",
 			"properties": {
-				"cline.vsCodeLmModelSelector": {
+				"clineChinese.vsCodeLmModelSelector": {
 					"type": "object",
 					"properties": {
 						"vendor": {
@@ -142,7 +142,7 @@
 					},
 					"description": "Settings for VSCode Language Model API"
 				},
-				"cline.mcp.mode": {
+				"clineChinese.mcp.mode": {
 					"type": "string",
 					"enum": [
 						"full",
@@ -157,17 +157,17 @@
 					"default": "full",
 					"description": "Controls MCP inclusion in prompts, reduces token usage if you only need access to certain functionality."
 				},
-				"cline.enableCheckpoints": {
+				"clineChinese.enableCheckpoints": {
 					"type": "boolean",
 					"default": true,
 					"description": "Enables extension to save checkpoints of workspace throughout the task."
 				},
-				"cline.disableBrowserTool": {
+				"clineChinese.disableBrowserTool": {
 					"type": "boolean",
 					"default": false,
 					"description": "Disables extension from spawning browser session."
 				},
-				"cline.modelSettings.o3Mini.reasoningEffort": {
+				"clineChinese.modelSettings.o3Mini.reasoningEffort": {
 					"type": "string",
 					"enum": [
 						"low",
@@ -177,12 +177,12 @@
 					"default": "medium",
 					"description": "Controls the reasoning effort when using the o3-mini model. Higher values may result in more thorough but slower responses."
 				},
-				"cline.chromeExecutablePath": {
+				"clineChinese.chromeExecutablePath": {
 					"type": "string",
 					"default": null,
 					"description": "Path to Chrome executable for browser use functionality. If not set, the extension will attempt to find or download it automatically."
 				},
-				"cline.mcpMarketplace.enabled": {
+				"clineChinese.mcpMarketplace.enabled": {
 					"type": "boolean",
 					"default": true,
 					"description": "Controls whether the MCP Marketplace is enabled."
