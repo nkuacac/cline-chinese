@@ -1249,8 +1249,7 @@ export const ModelInfoView = ({
 		),
 		modelInfo.supportsPromptCache && modelInfo.cacheReadsPrice && (
 			<span key="cacheReadsPrice">
-				<span style={{ fontWeight: 500 }}>缓存读取价格:</span> {formatPrice(modelInfo.cacheReadsPrice || 0)}/百万
-				tokens
+				<span style={{ fontWeight: 500 }}>缓存读取价格:</span> {formatPrice(modelInfo.cacheReadsPrice || 0)}/百万 tokens
 			</span>
 		),
 		modelInfo.outputPrice !== undefined && modelInfo.outputPrice > 0 && (

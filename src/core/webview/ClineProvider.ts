@@ -1646,7 +1646,9 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 			apiConfiguration,
 			customInstructions,
 			uriScheme: vscode.env.uriScheme,
-			currentTaskItem: this.clineChinese?.taskId ? (taskHistory || []).find((item) => item.id === this.clineChinese?.taskId) : undefined,
+			currentTaskItem: this.clineChinese?.taskId
+				? (taskHistory || []).find((item) => item.id === this.clineChinese?.taskId)
+				: undefined,
 			checkpointTrackerErrorMessage: this.clineChinese?.checkpointTrackerErrorMessage,
 			clineMessages: this.clineChinese?.clineMessages || [],
 			taskHistory: (taskHistory || []).filter((item) => item.ts && item.task).sort((a, b) => b.ts - a.ts),
