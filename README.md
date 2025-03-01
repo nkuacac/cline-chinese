@@ -14,7 +14,7 @@ https://github.com/HybridTalentComputing/cline-chinese
 
 ## 功能展示
 
-<video src="docs/ClineChinese.mov" controls title="Cline中文汉化版演示视频"></video>
+<video src="https://github.com/HybridTalentComputing/cline-chinese/blob/main/docs/ClineChinese.mov" controls title="Cline中文汉化版演示视频"></video>
 
 > 演示视频使用 DeepSeek-R1-Distill-Qwen-14B 模型，展示了 Cline 中文汉化版的主要功能和使用效果，视频没有加速，推理速度快到飞起。
 
@@ -49,11 +49,11 @@ Cline-Chinese已发布到VSCode插件市场，欢迎感兴趣的小伙伴们下�
 
 <div align="center" style="display: flex; justify-content: center; gap: 20px;">
 
-<a href="docs/QRCode/AliPay.jpg">
+<a href="https://github.com/HybridTalentComputing/cline-chinese/blob/main/docs/QRCode/AliPay.jpg">
   <img src="https://img.shields.io/badge/支付宝赞赏-1677FF?style=for-the-badge&logo=alipay&logoColor=white" alt="支付宝赞赏" width="200" />
 </a>
 
-<a href="docs/QRCode/WechatPay.jpg">
+<a href="https://github.com/HybridTalentComputing/cline-chinese/blob/main/docs/QRCode/WechatPay.jpg">
   <img src="https://img.shields.io/badge/微信赞赏-07C160?style=for-the-badge&logo=wechat&logoColor=white" alt="微信赞赏" width="180" />
 </a>
 
