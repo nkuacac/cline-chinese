@@ -15,8 +15,7 @@ https://github.com/HybridTalentComputing/cline-chinese
 ## 功能展示
 
 <video width="100%" controls>
-  <source src="https://github.com/HybridTalentComputing/cline-chinese/assets/docs/ClineChinese.mov" type="video/mp4">
-  您的浏览器不支持视频标签。
+  <source src="https://github.com/HybridTalentComputing/cline-chinese/blob/main/docs/ClineChinese.mov" type="video/mov">
 </video>
 
 > 演示视频使用 DeepSeek-R1-Distill-Qwen-14B 模型，展示了 Cline 中文汉化版的主要功能和使用效果，视频没有加速，推理速度快到飞起。
