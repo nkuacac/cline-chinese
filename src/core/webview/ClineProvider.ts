@@ -767,7 +767,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 					}
 					// case "openMcpMarketplaceServerDetails": {
 					// 	if (message.text) {
-					// 		const response = await fetch(`https://api.clineChinese.bot/v1/mcp/marketplace/item?mcpId=${message.mcpId}`)
+					// 		const response = await fetch(`https://api.cline.bot/v1/mcp/marketplace/item?mcpId=${message.mcpId}`)
 					// 		const details: McpDownloadResponse = await response.json()
 
 					// 		if (details.readmeContent) {
@@ -1168,7 +1168,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 
 	private async fetchMcpMarketplaceFromApi(silent: boolean = false): Promise<McpMarketplaceCatalog | undefined> {
 		try {
-			const response = await axios.get("https://api.clineChinese.bot/v1/mcp/marketplace", {
+			const response = await axios.get("https://api.cline.bot/v1/mcp/marketplace", {
 				headers: {
 					"Content-Type": "application/json",
 				},
@@ -1260,7 +1260,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 
 			// Fetch server details from marketplace
 			const response = await axios.post<McpDownloadResponse>(
-				"https://api.clineChinese.bot/v1/mcp/download",
+				"https://api.cline.bot/v1/mcp/download",
 				{ mcpId },
 				{
 					headers: { "Content-Type": "application/json" },
