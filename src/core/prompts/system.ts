@@ -229,9 +229,9 @@ ${
 - command：（可选）要执行的 CLI 命令，向用户展示结果的实时演示。例如，使用 \`open index.html\` 显示创建的 html 网站，或使用 \`open localhost:3000\` 显示本地运行的开发服务器。但不要使用仅打印文本的命令，如 \`echo\` 或 \`cat\`。此命令应对当前操作系统有效。确保命令格式正确且不包含任何有害指令。
 用法：
 <attempt_completion>
-<r>
+<result>
 在此输入你的最终结果描述
-</r>
+</result>
 <command>用于演示结果的命令（可选）</command>
 </attempt_completion>
 
