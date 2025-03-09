@@ -43,23 +43,6 @@ Cline-Chinese已发布到VSCode插件市场，欢迎感兴趣的小伙伴们下�
 2. 进一步优化汉化质量
 3. 已知问题修复
 
-
-## 赞赏支持
-
-如果您觉得这个项目对您有帮助，欢迎赞赏支持，您的支持是我持续开发的动力 ☕
-
-<div align="center" style="display: flex; justify-content: center; gap: 20px;">
-
-<a href="https://github.com/HybridTalentComputing/cline-chinese/blob/main/docs/QRCode/AliPay.jpg">
-  <img src="https://img.shields.io/badge/支付宝赞赏-1677FF?style=for-the-badge&logo=alipay&logoColor=white" alt="支付宝赞赏" width="200" />
-</a>
-
-<a href="https://github.com/HybridTalentComputing/cline-chinese/blob/main/docs/QRCode/WechatPay.jpg">
-  <img src="https://img.shields.io/badge/微信赞赏-07C160?style=for-the-badge&logo=wechat&logoColor=white" alt="微信赞赏" width="180" />
-</a>
-
-</div>
-
 ## 欢迎关注我的自媒体账号
 
 欢迎关注我的自媒体账号，获取更多AI开发和技术分享：
@@ -75,9 +58,19 @@ Cline-Chinese已发布到VSCode插件市场，欢迎感兴趣的小伙伴们下�
 感兴趣的可以扫码加入微信社群，一起交流学习AI：
 
 <div align="center">
-  <img src="docs/QRCode/WeChatGroup.JPG" alt="微信群二维码" width="300" />
+  <img src="docs/QRCode/WeChatGroup.JPG" alt="微信群二维码" width="250" />
 </div>
 
+## 赞赏支持
+
+如果您觉得这个项目对您有帮助，欢迎赞赏支持，您的支持是我持续开发的动力 ☕
+
+<div align="center" style="display: flex; justify-content: center; gap: 20px;">
+
+  <img src="https://github.com/user-attachments/assets/f01e4514-e8ec-48de-883a-9f6fbd05c2a0" alt="支付宝赞赏" width="250" />
+  <img src="https://github.com/user-attachments/assets/f4ee93ba-2960-46be-96a7-faaff3a0c38c" alt="微信赞赏" width="250" />
+
+</div>
 
 ## 免责声明
 
