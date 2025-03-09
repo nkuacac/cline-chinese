@@ -58,7 +58,8 @@ Cline-Chinese已发布到VSCode插件市场，欢迎感兴趣的小伙伴们下�
 感兴趣的可以扫码加入微信社群，一起交流学习AI：
 
 <div align="center">
-  <img src="docs/QRCode/WeChatGroup.JPG" alt="微信群二维码" width="250" />
+  <img src="https://github.com/user-attachments/assets/9593bf2e-d852-4e1c-93c7-ec3e669adeda" alt="微信群二维码" width="250" />
+  
 </div>
 
 ## 赞赏支持
