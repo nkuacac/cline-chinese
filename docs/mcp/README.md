@@ -2,8 +2,8 @@
 
 **快速链接:**
 
-- [从 GitHub 构建 MCP 服务器](mcp-server-from-github.md)
-- [从零开始构建自定义 MCP 服务器](mcp-server-from-scratch.md)
+- [从 GitHub 构建 MCP 服务器](来自 GitHub 的 MCP 服务器.md)
+- [从零开始构建自定义 MCP 服务器](构建定制MCP服务器.md)
 
 本文件解释了 Model Context Protocol (MCP) 服务器的功能，以及 Cline 如何帮助构建和使用它们。
 
