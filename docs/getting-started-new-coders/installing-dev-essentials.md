@@ -1,105 +1,95 @@
-# Installing Essential Development Tools with Cline | New Coders
+# 使用Cline安装必备开发工具 | 新手开发者的指南
 
-When you start coding, you'll need some essential development tools installed on your computer. Cline can help you install everything you need in a safe, guided way.
+刚开始编码时，你需要在电脑上安装一些必备的开发工具。Cline 可以帮助你以安全且有指导的方式安装所有需要的工具。
 
-## The Essential Tools
+## 必备工具
 
-Here are the core tools you'll need for development:
+以下是开发所需的核心工具：
 
--   **Homebrew**: A package manager for macOS that makes it easy to install other tools
--   **Node.js & npm**: Required for JavaScript and web development
--   **Git**: For tracking changes in your code and collaborating with others
--   **Python**: A programming language used by many development tools
--   **Additional utilities**: Tools like wget and jq that help with downloading files and processing data
+- **Homebrew**: macOS 的包管理器，让你轻松安装其他工具
+- **Node.js & npm**: JavaScript 和网页开发所需的工具
+- **Git**: 用于跟踪代码更改和与他人协作的版本控制系统
+- **Python**: 许多开发工具使用的编程语言
+- **其他实用工具**: 帮助下载文件和处理数据的工具，如wget和jq
 
-## Let Cline Install Everything
+## 让 Cline 帮你安装
 
-Copy this prompt and paste it into Cline:
-
-```bash
-Hello Cline! I need help setting up my Mac for software development. Could you please help me install the essential development tools like Homebrew, Node.js, Git, Python, and any other utilities that are commonly needed for coding? I'd like you to guide me through the process step-by-step, explaining what each tool does and making sure everything is installed correctly.
-```
-
-## What Will Happen
-
-1. Cline will first install Homebrew, which is like an "app store" for development tools
-2. Using Homebrew, Cline will then install other essential tools like Node.js and Git
-3. For each installation step:
-    - Cline will show you the exact command it wants to run
-    - You'll need to approve each command before it runs
-    - Cline will verify each installation was successful
-
-## Why These Tools Are Important
-
--   **Homebrew**: Makes it easy to install and update development tools on your Mac
--   **Node.js & npm**: Required for:
-    -   Building websites with React or Next.js
-    -   Running JavaScript code
-    -   Installing JavaScript packages
--   **Git**: Helps you:
-    -   Save different versions of your code
-    -   Collaborate with other developers
-    -   Back up your work
--   **Python**: Used for:
-    -   Running development scripts
-    -   Data processing
-    -   Machine learning projects
-
-## Notes
-
--   The installation process is interactive - Cline will guide you through each step
--   You may need to enter your computer's password for some installations. When prompted, you will not see any characters being typed on the screen. This is normal and is a security feature to protect your password. Just type your password and press Enter.
-
-**Example:**
+将以下提示复制并粘贴到 Cline 中：
 
 ```bash
-$ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-Password:
+你好 Cline！我需要帮助为我的Mac配置软件开发环境。你能帮我安装Homebrew、Node.js、Git、Python和许多其他编码所需的基本工具吗？我希望你一步步地指导我完成整个过程，解释每个工具的作用，并确保所有安装都正确。
 ```
 
-_Type your password here, even though nothing will show up on the screen. Press Enter when you're done._
+## 安装过程
 
--   All commands will be shown to you for approval before they run
--   If you run into any issues, Cline will help troubleshoot them
+1. Cline 将首先安装Homebrew，它就像一个“应用商店”用于开发工具
+2. 使用Homebrew，Cline 将安装其他重要工具，如Node.js和Git
+3. 每个安装步骤中：
+    - Cline 会显示它想要运行的命令
+    - 你需要批准每个命令才能运行
+    - Cline 会验证每个安装是否成功
 
-## Additional Tips for New Coders
+## 为什么这些工具重要
 
-### Understanding the Terminal
+- **Homebrew**: 让你在Mac上轻松安装和更新开发工具
+- **Node.js & npm**: 用于：
+    - 使用React或Next.js构建网站
+    - 运行JavaScript代码
+    - 安装JavaScript包
+- **Git**: 帮助你：
+    - 保存代码的不同版本
+    - 与其他开发人员协作
+    - 备份你的工作
+- **Python**: 用于：
+    - 运行开发脚本
+    - 数据处理
+    - 机器学习项目
 
-The **Terminal** is an application where you can type commands to interact with your computer. On macOS, you can open it by searching for "Terminal" in Spotlight.
+## 注意事项
 
-**Example:**
+- 安装过程是交互式的 - Cline会引导你完成每一步
+- 你可能需要为某些安装输入电脑密码。当提示输入时，你不会在屏幕上看到任何字符。这是正常的安全功能，用于保护你的密码。只需输入你的密码再按回车。
+- 所有命令都会显示出来供你审批后再运行
+- 如果遇到任何问题，Cline将会帮助你进行故障排除
+
+## 新开发者的额外小贴士
+
+### 了解终端
+
+**终端** 是一个应用程序，你可以对其进行输入命令与电脑交互。在macOS中，你可通过Spotlight搜索“Terminal”来打开它。
+
+**示例:**
 
 ```bash
 $ open -a Terminal
 ```
 
-### Understanding VS Code Features
+### 了解VS Code功能
 
-#### Terminal in VS Code
+#### VS Code中的Terminal
 
-The **Terminal** in VS Code allows you to run commands directly from within the editor. You can open it by going to `View > Terminal` or by pressing `` Ctrl + ` ``.
+VS Code中的**Terminal**允许你直接从编辑器中运行命令。你可以通过 `View > Terminal` 或按 `` Ctrl + ` `` 打开。
 
-**Example:**
+**示例:**
 
 ```bash
 $ node -v
 v16.14.0
 ```
 
-#### Document View
+#### 文档视图
 
-The **Document View** is where you edit your code files. You can open files by clicking on them in the **Explorer** panel on the left side of the screen.
+**文档视图** 是你编辑代码文件的地方。你可以通过点击屏幕左侧的“Explorer”面板中的文件来打开它们。
 
-#### Problems Section
+#### 问题部分
 
-The **Problems** section in VS Code shows any errors or warnings in your code. You can access it by clicking on the lightbulb icon or by going to `View > Problems`.
+**问题** 部分显示你在代码中的任何错误或警告。你可以通过点击灯泡图标或选择 `View > Problems` 来访问它。
 
-### Common Features
+### 常用功能
 
--   **Command Line Interface (CLI)**: This is a text-based interface where you type commands to interact with your computer. It might seem intimidating at first, but it's a powerful tool for developers.
--   **Permissions**: Sometimes, you will need to give permissions to certain applications or commands. This is a security measure to ensure that only trusted applications can make changes to your system.
+- **命令行界面 (CLI)**: 这是一个文本界面，你在其中输入命令与电脑交互。刚开始可能会觉得有些吓人，但它对开发人员来说是一个强大工具。
+- **权限**: 有时你需要给某些应用或命令权限。这是一种安全措施，以确保只有受信任的应用可以对你系统进行更改。
 
-## Next Steps
+## 下一步
 
-After installing these tools, you'll be ready to start coding! Return to the [Getting Started with Cline for New Coders](../getting-started-new-coders/README.md) guide to continue your journey.
+安装完这些工具后，你就可以开始编码了！返回 [新手开发者的Cline入门指南](../getting-started-new-coders/README.md)继续你的旅程。

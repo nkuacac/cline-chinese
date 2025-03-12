@@ -1,3 +1,4 @@
+```markdown
 # Cline Prompting Guide 🚀
 
 Welcome to the Cline Prompting Guide! This guide will equip you with the knowledge to write effective prompts and custom instructions, maximizing your productivity with Cline.
@@ -302,3 +303,4 @@ Here are some prompting tips that users have found helpful for working with Clin
     "THE HUMAN WILL GET ANGRY."
     ```
     (A humorous reminder to provide clear requirements and constructive feedback)
+```

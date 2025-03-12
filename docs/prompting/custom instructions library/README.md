@@ -1,53 +1,53 @@
-# Cline Custom Instructions Library
+# Cline 自定义指令库
 
-This repository aims to foster a collaborative space where developers can share, refine, and leverage effective custom instructions for Cline. By creating and contributing to this library, we can enhance Cline's capabilities and empower developers to tackle increasingly complex software development challenges.
+本仓库致力于构建一个协作共享的空间，让开发者能够分享、完善并高效利用Cline的自定义指令。通过创建并贡献到这个库，我们可以提升Cline的功能，助力开发者应对日益复杂的软件开发挑战。
 
-## What are Cline Custom Instructions?
+## 什么是Cline自定义指令？
 
-Cline's custom instructions are sets of guidelines or rules that you define to tailor the AI's behavior and outputs for specific tasks or projects. Think of them as specialized "programming" for Cline, enabling you to:
+Cline的自定义指令是一系列您定义的规则或指南，用于定制AI在执行特定任务或项目时的行为和输出。您可以将其视为专门为Cline设计的"编程指南"，具体功能包括：
 
--   **Enforce Coding Practices:** Ensure consistent code style, adherence to design patterns, and best practices for specific languages or frameworks.
--   **Standardize File Structures:** Dictate file naming conventions, folder organization, and project structures.
--   **Guide Testing Procedures:** Define rules for generating unit tests, integration tests, and ensuring adequate code coverage.
--   **Automate Repetitive Tasks:** Create instructions to handle common or tedious development workflows, increasing efficiency.
--   **Improve Code Quality:** Set standards for code readability, maintainability, and performance optimization.
+- ** enforcing 码规实践 **: 保障代码风格的一致性，遵循设计模式和最佳实践。
+- **标准化文件结构**: 制定文件命名约定、文件夹组织规则及项目架构。
+- **指导测试流程**: 定义单元测试、集成测试的生成规则，确保充分的代码覆盖率。
+- **自动化重复任务**: 创建指令来处理常见或繁琐的开发工作流程，提高效率。
+- **提升代码质量**: 设定可读性、可维护性和性能优化的标准。
 
-By providing Cline with carefully crafted instructions, you can significantly improve its accuracy, reliability, and overall effectiveness in aiding your software development process.
+通过为Cline提供精心设计的自定义指令，您可以显著提升其准确性和可靠性，使其在软件开发过程中发挥更大作用。
 
-## Contributing Custom Instructions
+## 贡献自定义指令
 
-We encourage developers of all skill levels to contribute their custom instructions to this library. Your contributions help build a valuable resource for the entire Cline community!
+我们鼓励所有技术水平的开发者将他们的自定义指令贡献到这个库中。您的贡献将为整个Cline社区构建宝贵资源！
 
-**When submitting custom instructions, please follow this template:**
+**提交自定义指令时，请参考以下模板:**
 
-### 1. Purpose and Functionality
+### 1. 目的与功能
 
--   **What does this instruction set aim to achieve?**
+- **本指令集的目标是什么？**
 
-    -   Provide a clear and concise explanation of the instruction set's goals and intended use cases.
-    -   Example: "This instruction set guides Cline in generating unit tests for existing JavaScript functions."
+  - 请提供清晰简洁的说明，描述指令集的目标及其适用场景。
+  - 示例: "本指令集指导Cline生成现有JavaScript函数的单元测试。"
 
--   **What types of projects or tasks is this best suited for?**
-    -   Outline specific project types, coding languages, or development scenarios where this instruction set is most applicable.
-    -   Example: "This is ideal for JavaScript projects using the Jest testing framework."
+- **适用于哪些类型的项目或任务？**
+  - 请列出适用的具体项目类型、编程语言或开发场景。
+  - 示例: "适用于使用Jest测试框架的JavaScript项目。"
 
-### 2. Usage Guide (Optional)
+### 2. 使用说明（可选）
 
--   **Are there specific steps or prerequisites for using this instruction set?**
-    -   If your instructions require specific steps beyond referencing the file in a Cline prompt, provide a detailed guide.
-    -   Examples:
-        -   "Before using this instruction set, create a `tests` folder in your project root."
-        -   "Ensure you have the Jest testing library installed."
+- **使用该指令集需要哪些特定步骤或前置条件？**
+  - 如果您的指令需要额外的使用步骤（不仅仅是引用到Cline提示中），请提供详细说明。
+  - 示例:
+    - "使用前，请在项目根目录下创建一个`tests`文件夹。"
+    - "确保已安装Jest测试库。"
 
-### 3. Author & Contributors
+### 3. 作者与贡献者
 
--   **Who created this instruction set?**
-    -   Provide your name or GitHub username for proper attribution.
--   **Did anyone else contribute?**
-    -   Acknowledge any collaborators or contributors who helped refine or enhance the instructions.
+- **谁创建了此指令集？**
+  - 请提供您的姓名或GitHub用户名，以便正确署名。
+- **有其他贡献者吗？**
+  - 请致谢任何帮助完善该指令集的合作者或贡献者。
 
-### 4. Custom Instructions
+### 4. 自定义指令内容
 
--   **Provide the complete set of custom instructions.**
+- **请提供完整的自定义指令集。**
 
-**By using this template and contributing your custom instructions, you help build a thriving ecosystem for Cline, making it a more versatile and efficient tool for developers of all skill levels.**
+**通过使用此模板并贡献您的自定义指令，您正在助力构建一个蓬勃发展的Cline生态系统，使其成为适用于各级别开发者的更加多样化、高效的工具。**
