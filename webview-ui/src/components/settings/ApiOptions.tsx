@@ -33,6 +33,7 @@ import {
 	openRouterDefaultModelInfo,
 	vertexDefaultModelId,
 	vertexModels,
+	arkModels,
 } from "../../../../src/shared/api"
 import { ExtensionMessage } from "../../../../src/shared/ExtensionMessage"
 import { useExtensionState } from "../../context/ExtensionStateContext"
@@ -195,6 +196,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 					<VSCodeOption value="lmstudio">LM Studio</VSCodeOption>
 					<VSCodeOption value="ollama">Ollama</VSCodeOption>
 					<VSCodeOption value="litellm">LiteLLM</VSCodeOption>
+					<VSCodeOption value="ark">ARK</VSCodeOption>
 				</VSCodeDropdown>
 			</DropdownContainer>
 
@@ -1115,6 +1117,58 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 				</div>
 			)}
 
+			{selectedProvider === "ark" && (
+				<div>
+					<p
+						style={{
+							fontSize: "12px",
+							marginTop: 3,
+							color: "var(--vscode-descriptionForeground)",
+						}}>
+						方舟是
+						<VSCodeLink href="https://console.volcengine.com/" style={{ display: "inline", fontSize: "inherit" }}>
+							字节火山平台
+						</VSCodeLink>
+						开发的AI模型服务平台，如何使用请参考：
+						<VSCodeLink
+							href="https://console.volcengine.com/ark/region:ark+cn-beijing/apiKey"
+							style={{ display: "inline", fontSize: "inherit" }}>
+							获取APIKey
+						</VSCodeLink>
+						<VSCodeLink
+							href="https://console.volcengine.com/ark/region:ark+cn-beijing/openManagement"
+							style={{ display: "inline", fontSize: "inherit" }}>
+							开通模型
+						</VSCodeLink>
+					</p>
+					<VSCodeTextField
+						value={apiConfiguration?.volcApiKey || ""}
+						style={{ width: "100%" }}
+						type="password"
+						onInput={handleInputChange("volcApiKey")}
+						placeholder="请输入火山引擎 API Key...">
+						<span style={{ fontWeight: 500 }}>火山引擎 API Key</span>
+					</VSCodeTextField>
+
+					<VSCodeTextField
+						value={apiConfiguration?.volcEndpoint || ""}
+						style={{ width: "100%" }}
+						type="url"
+						onInput={handleInputChange("volcEndpoint")}
+						placeholder="请输入火山引擎 API 端点...">
+						<span style={{ fontWeight: 500 }}>火山引擎 API 端点</span>
+					</VSCodeTextField>
+
+					<VSCodeTextField
+						value={apiConfiguration?.apiModelId || ""}
+						style={{ width: "100%" }}
+						onInput={handleInputChange("apiModelId")}
+						placeholder={"输入模型ID or 接入点..."}>
+						<span style={{ fontWeight: 500 }}>模型ID or 接入点</span>
+					</VSCodeTextField>
+				</div>
+			)}
+
 			{apiErrorMessage && (
 				<p
 					style={{
@@ -1145,6 +1199,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage, is
 							{selectedProvider === "deepseek" && createDropdown(deepSeekModels)}
 							{selectedProvider === "qwen" && createDropdown(qwenModels)}
 							{selectedProvider === "mistral" && createDropdown(mistralModels)}
+							{selectedProvider === "ark" && createDropdown(arkModels)}
 						</DropdownContainer>
 
 						<ModelInfoView
@@ -1394,6 +1449,15 @@ export function normalizeApiConfiguration(apiConfiguration?: ApiConfiguration): 
 				selectedProvider: provider,
 				selectedModelId: apiConfiguration?.liteLlmModelId || "",
 				selectedModelInfo: openAiModelInfoSaneDefaults,
+			}
+		case "ark":
+			return {
+				selectedProvider: provider,
+				selectedModelId: apiConfiguration?.apiModelId || "",
+				selectedModelInfo:
+					apiConfiguration?.apiModelId && apiConfiguration.apiModelId in arkModels
+						? arkModels[apiConfiguration.apiModelId as keyof typeof arkModels]
+						: openAiModelInfoSaneDefaults,
 			}
 		default:
 			return getProviderData(anthropicModels, anthropicDefaultModelId)

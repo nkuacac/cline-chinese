@@ -15,6 +15,7 @@ export type ApiProvider =
 	| "mistral"
 	| "vscode-lm"
 	| "litellm"
+	| "ark"
 
 export interface ApiHandlerOptions {
 	apiModelId?: string
@@ -56,6 +57,10 @@ export interface ApiHandlerOptions {
 	vsCodeLmModelSelector?: any
 	o3MiniReasoningEffort?: string
 	qwenApiLine?: string
+
+	// volcEndpoint
+	volcEndpoint?: string
+	volcApiKey?: string
 }
 
 export type ApiConfiguration = ApiHandlerOptions & {
@@ -793,3 +798,20 @@ export const liteLlmModelInfoSaneDefaults: ModelInfo = {
 	inputPrice: 0,
 	outputPrice: 0,
 }
+
+// ARK
+// https://ark.cn-beijing.volces.com/api/v3/docs
+export type ArkModelId = keyof typeof arkModels
+export const arkModels = {
+	"doubao-1-5-vision-pro-32k-250115": {
+		maxTokens: 4096,
+		contextWindow: 200000,
+		supportsImages: true,
+		supportsComputerUse: true,
+		supportsPromptCache: false,
+		inputPrice: 0.0001,
+		outputPrice: 0.0002,
+		description:
+			"相比于Doubao-vision-pro-32k/241028，Doubao-1.5-vision-Pro增强了模型在视觉推理、文字文档识别、细粒度信息理解、指令遵循方面的能力。",
+	},
+} as const satisfies Record<string, ModelInfo>
